@@ -7,4 +7,3 @@ const loggerRequestMiddleware = (req: Request, res: Response, next: NextFunction
 }
 
 export default loggerRequestMiddleware
-

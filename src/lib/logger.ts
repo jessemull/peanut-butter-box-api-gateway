@@ -1,3 +1,3 @@
-const logger = require('lambda-log')
+import logger from 'lambda-log'
 
-export default logger;
+export default logger

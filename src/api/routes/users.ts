@@ -1,4 +1,3 @@
-
 import { Router, Request, Response } from 'express'
 import dynamoDb from '../../lib/dynamo'
 import logger from '../../lib/logger'

@@ -1,6 +1,6 @@
-import { Router } from 'express';
-import healthcheck from './routes/healthcheck';
-import users from './routes/users';
+import { Router } from 'express'
+import healthcheck from './routes/healthcheck'
+import users from './routes/users'
 
 const routes = (): Router => {
   const app = Router()

@@ -4,11 +4,11 @@
     "strictNullChecks": true,
     "sourceMap": true,
     "allowJs": true,
-    "target": "es5",
+    "target": "ES2016",
     "outDir": ".build",
     "module": "commonjs",
     "esModuleInterop": true,
-    "lib": ["es2015"],
+    "lib": ["ES2016"],
     "rootDir": "./"
   }
 }

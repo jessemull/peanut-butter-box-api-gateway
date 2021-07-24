@@ -1,9 +1,9 @@
-import serverless from 'serverless-http';
-import bodyParser from 'body-parser';
-import express from 'express';
-import routes from './api/index';
-import errorMiddleware from './api/middleware/error';
-import loggerRequestMiddleware from './api/middleware/logger';
+import serverless from 'serverless-http'
+import bodyParser from 'body-parser'
+import express from 'express'
+import routes from './api/index'
+import errorMiddleware from './api/middleware/error'
+import loggerRequestMiddleware from './api/middleware/logger'
 
 const createApp = () => {
   const app = express()
@@ -12,7 +12,7 @@ const createApp = () => {
   app.use(routes())
   app.use(errorMiddleware)
   return app
-};
+}
 
 const handler = serverless(createApp())
 
