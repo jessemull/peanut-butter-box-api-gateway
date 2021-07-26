@@ -3,9 +3,9 @@ pipeline {
         docker { image 'node:14-alpine' }
     }
     stages {
-        stage('Test') {
+        stage('Dependencies') {
             steps {
-                sh 'node --version'
+                npm install
             }
         }
     }
