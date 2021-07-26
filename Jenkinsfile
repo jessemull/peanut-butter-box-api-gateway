@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Dependencies') {
             steps {
-                sh 'docker run --rm node:14-alpine npm install'
+                sh 'docker run --rm -v $(pwd):/app -w /app node:12 npm install'
             }
         }
     }
