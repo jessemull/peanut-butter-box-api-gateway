@@ -3,10 +3,12 @@ service: my-express-application
 configValidationMode: error
 
 custom:
-  tableName: 'users-table-${self:provider.stage}'
+  client:
+    bucketName: serverless-stack-jlm-${self:provider.stage}
   dynamodb:
     stages:
       - dev
+  tableName: 'users-table-${self:provider.stage}'
 
 provider:
   name: aws
@@ -80,6 +82,7 @@ functions:
                 id: true
 
 plugins:
+  - serverless-finch
   - serverless-plugin-typescript
   - serverless-offline
 

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
 import dynamoDb from '../../lib/dynamo'
 import logger from '../../lib/logger'
-import { User } from '../../types/users';
+import { User } from '../../types/users'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 const route: Router = Router()
@@ -31,8 +31,8 @@ export default (app: Router): void => {
     try {
       const data = await dynamoDb.get(params).promise()
       if (data.Item) {
-        const { userId, name }: User = data.Item
-        res.json({ userId, name } as User)
+        const { userId, name } = data.Item as User
+        res.json({ userId, name })
       } else {
         res.status(404).json({ error: 'User not found' })
       }
