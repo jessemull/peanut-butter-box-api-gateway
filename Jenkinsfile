@@ -1,14 +1,9 @@
 pipeline {
-    agent {
-        docker { image 'node:14-alpine' }
-    }
-    environment {
-        HOME = '.'
-    }
+    agent any
     stages {
         stage('Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'docker run --rm node:14-alpine npm install'
             }
         }
     }
