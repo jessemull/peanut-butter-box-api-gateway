@@ -34,7 +34,7 @@
   },
   "scripts": {
     "deploy:api": "sls deploy",
-    "deploy:client": "sls client deploy",
+    "deploy:client": "sls client deploy --no-confirm",
     "lint": "eslint . --ext .ts,.js",
     "start": "nodemon --exec serverless offline",
     "test": "jest"
