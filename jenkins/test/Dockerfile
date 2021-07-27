@@ -8,5 +8,4 @@ WORKDIR /app
 
 RUN npm install
 
-CMD ["pwd"]
 
