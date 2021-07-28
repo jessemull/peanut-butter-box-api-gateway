@@ -6,6 +6,14 @@ pipeline {
         IMAGE_TAG="node-test:${BUILD_ID}"
     }
     stages {
+        stage('Check ENV') {
+            steps {
+                sh """
+                  echo ${AWS_ACCESS_KEY_ID}
+                  echo ${AWS_SECRET_ACCESS_KEY}
+                """
+            }
+        }
         stage('Build') {
             steps {
                 sh './jenkins/build/build.sh'
