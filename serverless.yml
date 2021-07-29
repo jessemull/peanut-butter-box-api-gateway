@@ -1,4 +1,4 @@
-service: peanut-butter-box-backend
+service: peanut-butter-box-api-gateway
   
 configValidationMode: error
 
