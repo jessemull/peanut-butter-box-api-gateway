@@ -3,17 +3,9 @@ pipeline {
     environment {
         AWS_ACCESS_KEY_ID=credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY=credentials('AWS_SECRET_ACCESS_KEY')
-        IMAGE_TAG="node-test:${BUILD_ID}"
+        IMAGE_TAG="peanutbutterbox:${BUILD_ID}"
     }
     stages {
-        stage('Check ENV') {
-            steps {
-                sh """
-                  echo ${AWS_ACCESS_KEY_ID}
-                  echo ${AWS_SECRET_ACCESS_KEY}
-                """
-            }
-        }
         stage('Build') {
             steps {
                 sh './jenkins/build/build.sh'
@@ -24,15 +16,15 @@ pipeline {
                 sh './jenkins/test/test.sh'
             }
         }
-        stage('Deploy API') {
+        stage('Deploy') {
             steps {
-                sh './jenkins/deploy/deploy-api.sh'
+                sh './jenkins/deploy/deploy.sh'
             }
         }
-        stage('Deploy Client') {
-            steps {
-                sh './jenkins/deploy/deploy-client.sh'
-            }
+    }
+    post {
+        always {
+            sh './jenkins/post/post.sh'
         }
     }
 }

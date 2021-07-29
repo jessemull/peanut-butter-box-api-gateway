@@ -19,6 +19,11 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
-    // Insert rules here...
+    '@typescript-eslint/no-misused-promises': [
+      'error',
+      {
+        'checksVoidReturn': false
+      }
+    ]
   }
 }

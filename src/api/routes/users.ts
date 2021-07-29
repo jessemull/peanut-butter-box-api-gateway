@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
-import dynamoDb from '../../lib/dynamo'
-import logger from '../../lib/logger'
+import dynamoDb from '../lib/dynamo'
+import logger from '../lib/logger'
 import { User } from '../../types/users'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
@@ -8,7 +8,7 @@ const route: Router = Router()
 
 export default (app: Router): void => {
   app.use('/users', route)
-  route.get('/', async (req, res): void => {
+  route.get('/', async (req: Request, res: Response): Promise<void> => {
     const params = {
       TableName: USERS_TABLE
     }
@@ -21,7 +21,7 @@ export default (app: Router): void => {
     }
   })
 
-  route.get('/:userId', async (req: Request, res: Response): void => {
+  route.get('/:userId', async (req: Request, res: Response): Promise<void> => {
     const params = {
       TableName: USERS_TABLE,
       Key: {
@@ -42,7 +42,7 @@ export default (app: Router): void => {
     }
   })
 
-  route.post('/', async (req: Request, res: Response): void => {
+  route.post('/', async (req: Request, res: Response): Promise<void> => {
     const { name } = req.body as User
     const params = {
       TableName: USERS_TABLE,
@@ -61,7 +61,7 @@ export default (app: Router): void => {
     }
   })
 
-  route.put('/:userId', async (req: Request, res: Response): void => {
+  route.put('/:userId', async (req: Request, res: Response): Promise<void> => {
     const { userId, name } = req.body as User
     const params = {
       TableName: USERS_TABLE,
@@ -80,7 +80,7 @@ export default (app: Router): void => {
     }
   })
 
-  route.delete('/:userId', async (req: Request, res: Response): void => {
+  route.delete('/:userId', async (req: Request, res: Response): Promise<void> => {
     const params = {
       TableName: USERS_TABLE,
       Key: {
