@@ -28,6 +28,7 @@ provider:
           Resource:
             - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn" ] }
   environment:
+    AUDIENCE: api://default
     USERS_TABLE: ${self:custom.tableName}
 
 functions:
@@ -36,10 +37,15 @@ functions:
     events:
       - http: ANY /
       - http: ANY /{proxy+}
+  authorizer:
+    handler: src/index.authorizer
   getHealthcheck:
     handler: src/index.handler
     events:
-      - http: 'GET /healthcheck/{proxy+}'
+      - http:
+          path: /healthcheck/{proxy+}
+          method: get
+          authorizer: authorizer
   getUsers:
     handler: src/index.handler
     events:

@@ -1,6 +1,7 @@
 import serverless from 'serverless-http'
 import bodyParser from 'body-parser'
 import express from 'express'
+import authorizer from './api/authorizer'
 import routes from './api/index'
 import errorMiddleware from './api/middleware/error'
 import loggerRequestMiddleware from './api/middleware/logger'
@@ -17,5 +18,6 @@ const createApp = () => {
 const handler = serverless(createApp())
 
 export {
+  authorizer,
   handler
 }
