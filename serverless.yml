@@ -31,6 +31,7 @@ provider:
     API_KEY_SECRET_NAME: 'okta-api-key'
     AUDIENCE: api://default
     AWS_REGION: ${self:provider.region}
+    OKTA_DOMAIN: 'https://dev-82492334.okta.com'
     USERS_TABLE: ${self:custom.tableName}
     
 functions:

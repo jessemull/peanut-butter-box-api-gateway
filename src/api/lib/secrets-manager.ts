@@ -1,24 +1,23 @@
 import AWS from 'aws-sdk'
 import logger from './logger'
 
-const secretId: string = process.env.API_KEY_SECRET_NAME as string
-
 const client = new AWS.SecretsManager({
   region: process.env.AWS_REGION
 })
 
-let apiKey: string
+const secretsCache: { [key: string]: string } = {}
 
-const getApiKey = async (): Promise<string | undefined> => {
-  if (apiKey) {
-    return apiKey
+const getSecret = async (secretId: string): Promise<string | undefined> => {
+  if (secretsCache[secretId]) {
+    return secretsCache[secretId]
   }
   try {
     const data = await client.getSecretValue({ SecretId: secretId }).promise()
     if (data.SecretString) {
       const parsed = JSON.parse(data.SecretString) as { [secretId: string]: string }
-      apiKey = parsed[secretId]
-      return apiKey
+      const secret = parsed[secretId]
+      secretsCache[secretId] = secret
+      return secret
     }
   } catch (error) {
     logger.error(error)
@@ -27,5 +26,5 @@ const getApiKey = async (): Promise<string | undefined> => {
 }
 
 export {
-  getApiKey
+  getSecret
 }
