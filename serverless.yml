@@ -28,9 +28,11 @@ provider:
           Resource:
             - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn" ] }
   environment:
+    API_KEY_SECRET_NAME: 'okta-api-key'
     AUDIENCE: api://default
+    AWS_REGION: ${self:provider.region}
     USERS_TABLE: ${self:custom.tableName}
-
+    
 functions:
   app:
     handler: src/index.handler
@@ -45,7 +47,6 @@ functions:
       - http:
           path: /healthcheck/{proxy+}
           method: get
-          authorizer: authorizer
   getUsers:
     handler: src/index.handler
     events:
@@ -97,11 +98,23 @@ resources:
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: userId
+            AttributeName: id
+            AttributeType: S
+          -
+            AttributeName: email
+            AttributeType: S
+          -
+            AttributeName: firstName
+            AttributeType: S
+          -
+            AttributeName: lastName
+            AttributeType: S
+          -
+            AttributeName: login
             AttributeType: S
         KeySchema:
           -
-            AttributeName: userId
+            AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

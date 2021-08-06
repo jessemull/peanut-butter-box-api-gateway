@@ -1,7 +1,9 @@
+import { v4 as uuidv4 } from 'uuid'
 import { Router, Request, Response } from 'express'
 import dynamoDb from '../lib/dynamo'
 import logger from '../lib/logger'
 import { User } from '../../types/users'
+import getOktaClient from '../lib/okta'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 const route: Router = Router()
@@ -21,18 +23,18 @@ export default (app: Router): void => {
     }
   })
 
-  route.get('/:userId', async (req: Request, res: Response): Promise<void> => {
+  route.get('/:id', async (req: Request, res: Response): Promise<void> => {
     const params = {
       TableName: USERS_TABLE,
       Key: {
-        userId: req.params.userId
+        id: req.params.id
       }
     }
     try {
       const data = await dynamoDb.get(params).promise()
       if (data.Item) {
-        const { userId, name } = data.Item as User
-        res.json({ userId, name })
+        const { id, email, firstName, lastName, login } = data.Item as User
+        res.json({ id, email, firstName, lastName, login })
       } else {
         res.status(404).json({ error: 'User not found' })
       }
@@ -43,31 +45,52 @@ export default (app: Router): void => {
   })
 
   route.post('/', async (req: Request, res: Response): Promise<void> => {
-    const { name } = req.body as User
+    const { email, firstName, lastName, password } = req.body as User
+    const newUser = {
+      profile: {
+        email,
+        firstName,
+        lastName,
+        login: email
+      },
+      credentials: {
+        password: {
+          value: password
+        }
+      }
+    }
     const params = {
       TableName: USERS_TABLE,
       Item: {
-        userId: req.params.userId,
-        name: name
+        id: uuidv4(),
+        email,
+        firstName,
+        lastName,
+        login: email
       },
       ReturnValues: 'ALL_OLD'
     }
     try {
-      const user = await dynamoDb.put(params).promise()
-      res.json(user.Attributes)
+      const oktaClient = await getOktaClient()
+      const user = await oktaClient.createUser(newUser)
+      await dynamoDb.put(params).promise()
+      res.json(user)
     } catch (error) {
       logger.error(error)
       res.status(500).json({ error: 'Could not create user' })
     }
   })
 
-  route.put('/:userId', async (req: Request, res: Response): Promise<void> => {
-    const { userId, name } = req.body as User
+  route.put('/:id', async (req: Request, res: Response): Promise<void> => {
+    const { email, firstName, lastName, login } = req.body as User
     const params = {
       TableName: USERS_TABLE,
       Item: {
-        userId: userId,
-        name: name
+        id: req.params.id,
+        email,
+        firstName,
+        lastName,
+        login
       },
       ReturnValues: 'ALL_OLD'
     }
@@ -80,11 +103,11 @@ export default (app: Router): void => {
     }
   })
 
-  route.delete('/:userId', async (req: Request, res: Response): Promise<void> => {
+  route.delete('/:id', async (req: Request, res: Response): Promise<void> => {
     const params = {
       TableName: USERS_TABLE,
       Key: {
-        userId: req.params.userId
+        id: req.params.id
       },
       ReturnValues: 'ALL_OLD'
     }
