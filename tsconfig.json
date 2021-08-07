@@ -4,11 +4,11 @@
     "strictNullChecks": true,
     "sourceMap": true,
     "allowJs": true,
-    "target": "ES2016",
+    "target": "ES2018",
     "outDir": ".build",
     "module": "commonjs",
     "esModuleInterop": true,
-    "lib": ["ES2016"],
+    "lib": ["ES2018"],
     "rootDir": "./"
   }
 }
