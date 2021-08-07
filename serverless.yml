@@ -30,7 +30,6 @@ provider:
   environment:
     API_KEY_SECRET_NAME: 'okta-api-key'
     AUDIENCE: api://default
-    AWS_REGION: ${self:provider.region}
     OKTA_DOMAIN: 'https://dev-82492334.okta.com'
     USERS_TABLE: ${self:custom.tableName}
     
@@ -51,41 +50,17 @@ functions:
   getUsers:
     handler: src/index.handler
     events:
-      - http: 'GET /users'
-  getUser:
-    handler: src/index.handler
-    events:
       - http: 
-          path: users/{id}/{proxy+}
+          authorizer: authorizer
           method: get
-          request: 
-            parameters: 
-              paths: 
-                id: true
+          path: /users/{proxy+}
+        
   postUser:
     handler: src/index.handler
     events:
-      - http: 'POST /users'
-  putUser:
-    handler: src/index.handler
-    events:
-      - http: 
-          path: users/{id}
-          method: put
-          request: 
-            parameters: 
-              paths: 
-                id: true
-  deleteUser:
-    handler: src/index.handler
-    events:
-      - http: 
-          path: users/{id}
-          method: delete
-          request: 
-            parameters: 
-              paths: 
-                id: true
+      - http:
+          method: post
+          path: /users
 
 plugins:
   - serverless-finch
@@ -99,23 +74,11 @@ resources:
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: id
-            AttributeType: S
-          -
             AttributeName: email
-            AttributeType: S
-          -
-            AttributeName: firstName
-            AttributeType: S
-          -
-            AttributeName: lastName
-            AttributeType: S
-          -
-            AttributeName: login
             AttributeType: S
         KeySchema:
           -
-            AttributeName: id
+            AttributeName: email
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

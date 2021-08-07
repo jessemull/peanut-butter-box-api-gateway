@@ -1,36 +1,28 @@
-import { v4 as uuidv4 } from 'uuid'
+import decodeJWT from 'jwt-decode'
 import { Router, Request, Response } from 'express'
 import dynamoDb from '../lib/dynamo'
+import getOktaClient from '../lib/okta'
 import logger from '../lib/logger'
 import { User } from '../../types/users'
-import getOktaClient from '../lib/okta'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 const route: Router = Router()
 
 export default (app: Router): void => {
   app.use('/users', route)
-  route.get('/', async (req: Request, res: Response): Promise<void> => {
-    const params = {
-      TableName: USERS_TABLE
-    }
-    try {
-      const users = await dynamoDb.scan(params).promise()
-      res.json(users.Items)
-    } catch (error) {
-      logger.error(error)
-      res.status(500).json({ error: 'Could not fetch users' })
-    }
-  })
 
-  route.get('/:id', async (req: Request, res: Response): Promise<void> => {
-    const params = {
-      TableName: USERS_TABLE,
-      Key: {
-        id: req.params.id
-      }
-    }
+  route.get('/', async (req: Request, res: Response): Promise<void> => {
     try {
+      const authorization = req.headers.authorization || ''
+      const split = authorization?.split(' ')
+      const jwt: { sub: string } = decodeJWT(split[1])
+      const email = jwt.sub
+      const params = {
+        TableName: USERS_TABLE,
+        Key: {
+          email
+        }
+      }
       const data = await dynamoDb.get(params).promise()
       if (data.Item) {
         const { id, email, firstName, lastName, login } = data.Item as User
@@ -45,34 +37,34 @@ export default (app: Router): void => {
   })
 
   route.post('/', async (req: Request, res: Response): Promise<void> => {
-    const { email, firstName, lastName, password } = req.body as User
-    const newUser = {
-      profile: {
-        email,
-        firstName,
-        lastName,
-        login: email
-      },
-      credentials: {
-        password: {
-          value: password
-        }
-      }
-    }
-    const params = {
-      TableName: USERS_TABLE,
-      Item: {
-        id: uuidv4(),
-        email,
-        firstName,
-        lastName,
-        login: email
-      },
-      ReturnValues: 'ALL_OLD'
-    }
     try {
       const oktaClient = await getOktaClient()
+      const { email, firstName, lastName, password } = req.body as User
+      const newUser = {
+        profile: {
+          email,
+          firstName,
+          lastName,
+          login: email
+        },
+        credentials: {
+          password: {
+            value: password
+          }
+        }
+      }
       const user = await oktaClient.createUser(newUser)
+      const params = {
+        TableName: USERS_TABLE,
+        Item: {
+          id: user.id,
+          email,
+          firstName,
+          lastName,
+          login: email
+        },
+        ReturnValues: 'ALL_OLD'
+      }
       await dynamoDb.put(params).promise()
       res.json(user)
     } catch (error) {
@@ -100,27 +92,6 @@ export default (app: Router): void => {
     } catch (error) {
       logger.error(error)
       res.status(500).json({ error: 'Could not update user' })
-    }
-  })
-
-  route.delete('/:id', async (req: Request, res: Response): Promise<void> => {
-    const params = {
-      TableName: USERS_TABLE,
-      Key: {
-        id: req.params.id
-      },
-      ReturnValues: 'ALL_OLD'
-    }
-    try {
-      const data = await dynamoDb.delete(params).promise()
-      if (data.Attributes) {
-        res.status(200).send()
-      } else {
-        res.status(404).json({ error: 'User not found' })
-      }
-    } catch (error) {
-      logger.error(error)
-      res.status(500).json({ error: 'Could not delete user' })
     }
   })
 }
