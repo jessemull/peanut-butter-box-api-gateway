@@ -47,7 +47,14 @@ functions:
       - http:
           path: /healthcheck/{proxy+}
           method: get
-  getUsers:
+  deleteUser:
+    handler: src/index.handler
+    events:
+      - http: 
+          authorizer: authorizer
+          method: delete
+          path: /users/{proxy+}
+  getUser:
     handler: src/index.handler
     events:
       - http: 
@@ -60,6 +67,13 @@ functions:
     events:
       - http:
           method: post
+          path: /users
+  putUser:
+    handler: src/index.handler
+    events:
+      - http:
+          authorizer: authorizer
+          method: put
           path: /users
 
 plugins:
