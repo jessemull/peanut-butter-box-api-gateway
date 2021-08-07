@@ -31,6 +31,7 @@ provider:
     API_KEY_SECRET_NAME: 'okta-api-key'
     AUDIENCE: api://default
     OKTA_DOMAIN: 'https://dev-82492334.okta.com'
+    OKTA_JWT_AUDIENCE: 'api://default'
     USERS_TABLE: ${self:custom.tableName}
     
 functions:

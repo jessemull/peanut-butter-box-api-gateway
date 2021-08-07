@@ -24,7 +24,7 @@ interface AuthResponse {
 }
 
 const oktaJwtVerifier = new OktaJwtVerifier({
-  issuer: 'https://dev-82492334.okta.com/oauth2/default'
+  issuer: `${process.env.OKTA_DOMAIN as string}/oauth2/default`
 })
 
 const authorizer = (event: Event, context, callback: (error: any, response?: any) => void) => { // eslint-disable-line
