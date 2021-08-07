@@ -4,6 +4,7 @@ import dynamoDb from '../lib/dynamo'
 import getOktaClient from '../lib/okta'
 import logger from '../lib/logger'
 import { User } from '../../types/users'
+import { JWT } from '../../types/auth'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 const route: Router = Router()
@@ -17,7 +18,7 @@ export default (app: Router): void => {
 
       const authorization = req.headers.authorization || ''
       const split = authorization?.split(' ')
-      const jwt: { sub: string } = decodeJWT(split[1])
+      const jwt: JWT = decodeJWT(split[1])
       const email = jwt.sub
 
       // Get the dynamo user
@@ -46,10 +47,17 @@ export default (app: Router): void => {
 
   route.post('/', async (req: Request, res: Response): Promise<void> => {
     try {
+      // Check if they are already registered
+
+      const { email, firstName, lastName, password } = req.body as User
+      const oktaClient = await getOktaClient()
+      const existingUser = await oktaClient.getUser(email)
+      if (existingUser) {
+        res.status(409).json({ error: 'A user with this e-mail already exists' })
+      }
+
       // Create OKTA user
 
-      const oktaClient = await getOktaClient()
-      const { email, firstName, lastName, password } = req.body as User
       const newUser = {
         profile: {
           email,
@@ -63,6 +71,7 @@ export default (app: Router): void => {
           }
         }
       }
+
       const user = await oktaClient.createUser(newUser)
 
       // Create dynamo user
@@ -95,7 +104,7 @@ export default (app: Router): void => {
 
       const authorization = req.headers.authorization || ''
       const split = authorization?.split(' ')
-      const jwt: { sub: string } = decodeJWT(split[1])
+      const jwt: JWT = decodeJWT(split[1])
       const email = jwt.sub
       const { firstName, lastName } = req.body as User
 
