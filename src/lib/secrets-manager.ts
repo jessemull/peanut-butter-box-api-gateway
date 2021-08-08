@@ -1,9 +1,5 @@
-import AWS from 'aws-sdk'
 import logger from './logger'
-
-const client = new AWS.SecretsManager({
-  region: process.env.AWS_REGION
-})
+import client from './secrets-client'
 
 const secretsCache: { [key: string]: string } = {}
 
