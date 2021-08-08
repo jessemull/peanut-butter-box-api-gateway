@@ -9,9 +9,9 @@ jest.mock('jwt-decode', () => () => ({
   sub: 'first.last@domain.com'
 }))
 
-jest.mock('../lib/dynamo')
+jest.mock('../../lib/dynamo')
 
-jest.mock('../lib/okta')
+jest.mock('../../lib/okta')
 
 const mockedGetOktaClient = mocked(getOktaClient)
 
@@ -202,7 +202,7 @@ describe('/user', () => {
     const dbParams = {
       TableName: 'users-table-dev',
       Key: {
-        email: 'first.last@domain.com',
+        email: 'first.last@domain.com'
       }
     }
 

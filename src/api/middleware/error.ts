@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
-import logger from '../lib/logger'
-import { Error } from '../../types/errors'
+import logger from '../../lib/logger'
+import { Error } from '../../types'
 
 const errorMiddleware = (err: Error, req: Request, res: Response, next: NextFunction): void => { // eslint-disable-line
   logger.error(err)

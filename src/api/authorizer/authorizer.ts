@@ -1,27 +1,6 @@
 import OktaJwtVerifier from '@okta/jwt-verifier'
-import logger from '../lib/logger'
-
-interface Event {
-  authorizationToken: string;
-  methodArn: string;
-}
-
-interface Statement {
-  Action: string;
-  Effect: string;
-  Resource: string;
-}
-
-interface AuthResponse {
-  context: {
-    claims: any; // eslint-disable-line
-  };
-  principalId: string;
-  policyDocument?:{
-    Version: string;
-    Statement: Array<Statement>;
-  }
-}
+import logger from '../../lib/logger'
+import { AuthResponse, Event } from '../../types'
 
 const oktaJwtVerifier = new OktaJwtVerifier({
   issuer: `${process.env.OKTA_DOMAIN as string}/oauth2/default`

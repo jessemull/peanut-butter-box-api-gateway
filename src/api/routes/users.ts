@@ -1,10 +1,9 @@
 import decodeJWT from 'jwt-decode'
 import { Router, Request, Response } from 'express'
-import dynamoDb from '../lib/dynamo'
-import getOktaClient from '../lib/okta'
-import logger from '../lib/logger'
-import { User } from '../../types/users'
-import { JWT } from '../../types/auth'
+import dynamoDb from '../../lib/dynamo'
+import getOktaClient from '../../lib/okta'
+import logger from '../../lib/logger'
+import { JWT, User } from '../../types'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 const route: Router = Router()
