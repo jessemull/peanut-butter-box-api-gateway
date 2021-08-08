@@ -1,17 +1,5 @@
-import { mocked } from 'ts-jest/utils'
 import OktaJwtVerifier, { Jwt } from '@okta/jwt-verifier'
 import authorizer from './authorizer'
-
-// jest.mock('@okta/jwt-verifier', () => {
-//   class MockJWT {
-//     async verifyAccessToken () {
-//       return Promise.resolve({ claims: [] })
-//     }
-//   }
-//   return MockJWT
-// })
-
-// jest.mock('@okta/jwt-verifier')
 
 describe('authorizer', () => {
   it('should validate JWT and return policy', (done) => {
@@ -42,7 +30,7 @@ describe('authorizer', () => {
       expect(data).toEqual(policy)
       done()
     })
-    authorizer(event as any, {}, callback)
+    authorizer(event as any, {}, callback) // eslint-disable-line
   })
   it('should catch errors', (done) => {
     OktaJwtVerifier.prototype.verifyAccessToken = async () => Promise.reject(new Error())
@@ -54,7 +42,7 @@ describe('authorizer', () => {
       expect(error).toEqual(new Error('Unauthorized'))
       done()
     })
-    authorizer(event as any, {}, callback)
+    authorizer(event as any, {}, callback) // eslint-disable-line
   })
   it('should catch malformed bearer token', (done) => {
     const event = {
@@ -65,6 +53,6 @@ describe('authorizer', () => {
       expect(error).toEqual(new Error('Unauthorized'))
       done()
     })
-    authorizer(event as any, {}, callback)
+    authorizer(event as any, {}, callback) // eslint-disable-line
   })
 })
