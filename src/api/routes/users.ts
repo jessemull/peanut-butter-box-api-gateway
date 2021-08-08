@@ -29,6 +29,7 @@ export default (app: Router): void => {
           email
         }
       }
+
       const data = await dynamoDb.get(params).promise()
 
       // Check if user is found and return user details
@@ -45,7 +46,7 @@ export default (app: Router): void => {
     }
   })
 
-  route.post('/', async (req: Request, res: Response): Promise<void> => {
+  route.post('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
       // Check if they are already registered
 
@@ -53,7 +54,7 @@ export default (app: Router): void => {
       const oktaClient = await getOktaClient()
       const existingUser = await oktaClient.getUser(email)
       if (existingUser) {
-        res.status(409).json({ error: 'A user with this e-mail already exists' })
+        return res.status(409).json({ error: 'A user with this e-mail already exists' })
       }
 
       // Create OKTA user

@@ -10,6 +10,6 @@ const route = Router()
 export default (app: Router): void => {
   app.use('/healthcheck', route)
   route.get('/', function (req: Request, res: Response): void {
-    res.send(version)
+    res.json(version)
   })
 }

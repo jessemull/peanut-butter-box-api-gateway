@@ -7,7 +7,7 @@ const getOktaClient = async (): Promise<Client> => {
   if (!oktaClient) {
     const token = await getSecret(process.env.API_KEY_SECRET_NAME as string)
     oktaClient = new Client({
-      orgUrl: 'https://dev-82492334.okta.com',
+      orgUrl: process.env.OKTA_DOMAIN,
       token
     })
   }

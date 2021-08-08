@@ -34,7 +34,7 @@ const authorizer = (event: Event, context, callback: (error: any, response?: any
     logger.error(new Error('Invalid JWT'))
     callback(new Error('Unauthorized'))
   }
-  oktaJwtVerifier.verifyAccessToken(bearerToken[1], 'api://default')
+  oktaJwtVerifier.verifyAccessToken(bearerToken[1], process.env.OKTA_JWT_AUDIENCE as string)
     .then(jwt => {
       callback(null, generatePolicy('user', 'Allow', event.methodArn, jwt.claims))
     })
