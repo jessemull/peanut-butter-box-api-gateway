@@ -1,9 +1,11 @@
 import decodeJWT from 'jwt-decode'
 import { Router, Request, Response } from 'express'
 import dynamoDb from '../../lib/dynamo'
+import ses from '../../lib/ses-client'
 import getOktaClient from '../../lib/okta'
 import logger from '../../lib/logger'
 import { JWT, User } from '../../types'
+import { AppUser } from '@okta/okta-sdk-nodejs'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 const route: Router = Router()
@@ -53,32 +55,91 @@ export default (app: Router): void => {
 
   route.post('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      // Check if they are already registered
-
       const { email, firstName, lastName, password } = req.body as User
       const oktaClient = await getOktaClient()
-      const existingUser = await oktaClient.getUser(email)
-      if (existingUser) {
-        return res.status(409).json({ error: 'A user with this e-mail already exists' })
-      }
 
-      // Create OKTA user
+      // Check if they are already registered
 
-      const newUser = {
-        profile: {
-          email,
-          firstName,
-          lastName,
-          login: email
-        },
-        credentials: {
-          password: {
-            value: password
-          }
+      const validateURL = `https://dev-82492334.okta.com/api/v1/users?limit=200&filter=profile.email+eq+%22${encodeURIComponent(email)}%22`
+      const validateRequest = {
+        method: 'get',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
         }
       }
 
-      const user = await oktaClient.createUser(newUser)
+      const validateData = await oktaClient.http.http(validateURL, validateRequest)
+      const validateUser = await validateData.json() as [AppUser]
+
+      if (validateUser.length > 0) {
+        return res.status(409).json({ error: 'A user with this e-mail already exists' })
+      }
+
+      // Create inactive OKTA user
+
+      const url = 'https://dev-82492334.okta.com/api/v1/users?activate=false'
+      const request = {
+        method: 'post',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          profile: {
+            email,
+            firstName,
+            lastName,
+            login: email
+          }
+        })
+      }
+
+      const data = await oktaClient.http.http(url, request)
+      const user = await data.json() as AppUser
+
+      // Get activation token for user
+
+      const activationURL = `https://dev-82492334.okta.com/api/v1/users/${user.id}/lifecycle/activate?sendEmail=false`
+      const activationRequest = {
+        method: 'post',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }
+
+      const activationData = await oktaClient.http.http(activationURL, activationRequest)
+      const activation = await activationData.json() as { activationToken: string }
+
+      // Send out notification e-mail with token link
+
+      const sesParams = {
+        Destination: {
+          ToAddresses: [
+            'jessemull@gmail.com'
+          ]
+        },
+        Message: {
+          Body: {
+            Html: {
+              Charset: 'UTF-8',
+              Data: `http://localhost:3000/activate?activationToken=${activation.activationToken}`
+            },
+            Text: {
+              Charset: 'UTF-8',
+              Data: `http://localhost:3000/activate?activationToken=${activation.activationToken}`
+            }
+          },
+          Subject: {
+            Charset: 'UTF-8',
+            Data: 'Welcome to Peanut Butter Box! Activate your account now!'
+          }
+        },
+        Source: 'support@peanutbutterbox.org'
+      }
+
+      await ses.sendEmail(sesParams).promise()
 
       // Create dynamo user
 
@@ -89,7 +150,8 @@ export default (app: Router): void => {
           email,
           firstName,
           lastName,
-          login: email
+          login: email,
+          status: 'INACTIVE'
         },
         ReturnValues: 'ALL_OLD'
       }
