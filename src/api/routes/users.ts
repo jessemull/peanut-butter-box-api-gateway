@@ -11,14 +11,20 @@ const route: Router = Router()
 export default (app: Router): void => {
   app.use('/users', route)
 
-  route.get('/', async (req: Request, res: Response): Promise<void> => {
+  route.get('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
       // Retrieve e-mail from JWT
 
       const authorization = req.headers.authorization || ''
-      const split = authorization?.split(' ')
-      const jwt: JWT = decodeJWT(split[1])
+      const split = authorization.split(' ')
+      const jwt: JWT = split.length > 1 ? decodeJWT(split[1]) : { sub: '' }
       const email = jwt.sub
+
+      // Bad JWT
+
+      if (!email) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
 
       // Get the dynamo user
 
@@ -98,18 +104,24 @@ export default (app: Router): void => {
     }
   })
 
-  route.put('/', async (req: Request, res: Response): Promise<void> => {
+  route.put('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
       // Retrieve e-mail from JWT
 
       const authorization = req.headers.authorization || ''
-      const split = authorization?.split(' ')
-      const jwt: JWT = decodeJWT(split[1])
+      const split = authorization.split(' ')
+      const jwt: JWT = split.length > 1 ? decodeJWT(split[1]) : { sub: '' }
       const email = jwt.sub
-      const { firstName, lastName } = req.body as User
+
+      // Bad JWT
+
+      if (!email) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
 
       // Update OKTA user
 
+      const { firstName, lastName } = req.body as User
       const oktaClient = await getOktaClient()
       const user = await oktaClient.getUser(email)
       user.profile.firstName = firstName
@@ -141,14 +153,20 @@ export default (app: Router): void => {
     }
   })
 
-  route.delete('/', async (req: Request, res: Response): Promise<void> => {
+  route.delete('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
       // Retrieve e-mail from JWT
 
       const authorization = req.headers.authorization || ''
-      const split = authorization?.split(' ')
-      const jwt: { sub: string } = decodeJWT(split[1])
+      const split = authorization.split(' ')
+      const jwt: JWT = split.length > 1 ? decodeJWT(split[1]) : { sub: '' }
       const email = jwt.sub
+
+      // Bad JWT
+
+      if (!email) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
 
       // Delete the user from OKTA
 
