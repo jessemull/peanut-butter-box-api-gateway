@@ -1,12 +1,11 @@
-import decodeJWT from 'jwt-decode'
+import bodyParser from 'body-parser'
 import supertest from 'supertest'
 import { mocked } from 'ts-jest/utils'
-import { createApp } from '../..'
 import client from '../../lib/dynamo'
 import getOktaClient from '../../lib/okta'
 import { Client } from '@okta/okta-sdk-nodejs'
-
-jest.mock('jwt-decode')
+import express, { Application, NextFunction, RequestHandler } from 'express'
+import routes from '..'
 
 jest.mock('../../lib/dynamo')
 
@@ -14,16 +13,25 @@ jest.mock('../../lib/okta')
 
 const mockedGetOktaClient = mocked(getOktaClient)
 
-const mockedJWTDecode = mocked(decodeJWT)
+const authorizationContextMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+  req.event = { requestContext: { authorizer: { claims: { sub: 'first.last@domain.com' } } } }
+  next()
+}
 
-mockedJWTDecode.mockImplementation(() => ({
-  sub: 'first.last@domain.com'
-}) as never)
+const getApp = (useAuth = true): Application => {
+  const app = express()
+  if (useAuth) {
+    app.use(authorizationContextMiddleware as any) // eslint-disable-line
+  }
+  app.use(bodyParser.json({ strict: false }))
+  app.use(routes())
+  return app
+}
 
 describe('/user', () => {
-  let app: Express.Application
+  let app: Application
   beforeAll(() => {
-    app = createApp()
+    app = getApp()
   })
   it('GET returns user information', async () => {
     const user = {
@@ -75,18 +83,12 @@ describe('/user', () => {
     expect(response.body).toEqual({ error: 'Could not fetch user' })
   })
   it('GET returns 401 for invalid JWT', async () => {
-    mockedJWTDecode.mockImplementationOnce(() => ({}))
-    const noEmail = await supertest(app)
+    const response = await supertest(getApp(false))
       .get('/users')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(401)
-    const noAuthHeader = await supertest(app)
-      .get('/users')
-      .set('Accept', 'application/json')
-      .expect(401)
-    expect(noEmail.body).toEqual({ error: 'Unauthorized' })
-    expect(noAuthHeader.body).toEqual({ error: 'Unauthorized' })
+    expect(response.body).toEqual({ error: 'Unauthorized' })
   })
   it('POST creates a new user', async () => {
     const user = {
@@ -218,18 +220,12 @@ describe('/user', () => {
     expect(response.body).toEqual({ error: 'Could not update user' })
   })
   it('PUT returns 401 for invalid JWT', async () => {
-    mockedJWTDecode.mockImplementationOnce(() => ({}))
-    const noEmail = await supertest(app)
+    const response = await supertest(getApp(false))
       .put('/users')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(401)
-    const noAuthHeader = await supertest(app)
-      .put('/users')
-      .set('Accept', 'application/json')
-      .expect(401)
-    expect(noEmail.body).toEqual({ error: 'Unauthorized' })
-    expect(noAuthHeader.body).toEqual({ error: 'Unauthorized' })
+    expect(response.body).toEqual({ error: 'Unauthorized' })
   })
   it('DELETE removes a user', async () => {
     const dbParams = {
@@ -269,17 +265,11 @@ describe('/user', () => {
     expect(response.body).toEqual({ error: 'Could not delete user' })
   })
   it('DELETE returns 401 for invalid JWT', async () => {
-    mockedJWTDecode.mockImplementationOnce(() => ({}))
-    const noEmail = await supertest(app)
+    const response = await supertest(getApp(false))
       .delete('/users')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(401)
-    const noAuthHeader = await supertest(app)
-      .delete('/users')
-      .set('Accept', 'application/json')
-      .expect(401)
-    expect(noEmail.body).toEqual({ error: 'Unauthorized' })
-    expect(noAuthHeader.body).toEqual({ error: 'Unauthorized' })
+    expect(response.body).toEqual({ error: 'Unauthorized' })
   })
 })

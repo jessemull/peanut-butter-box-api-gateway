@@ -18,7 +18,6 @@ const authorizer = (event: Event, context, callback: (error: any, response?: any
       callback(null, generatePolicy('user', 'Allow', event.methodArn, jwt.claims))
     })
     .catch(error => {
-      console.log(error)
       logger.error(error)
       callback(new Error('Unauthorized'))
     })

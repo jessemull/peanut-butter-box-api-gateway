@@ -1,12 +1,12 @@
 import serverless from 'serverless-http'
 import bodyParser from 'body-parser'
-import express from 'express'
+import express, { Application } from 'express'
 import authorizer from './api/authorizer'
 import routes from './api/index'
 import errorMiddleware from './api/middleware/error'
 import loggerRequestMiddleware from './api/middleware/logger'
 
-const createApp = (): Express.Application => {
+const createApp = (): Application => {
   const app = express()
   app.use(bodyParser.json({ strict: false }))
   app.use(loggerRequestMiddleware)

@@ -190,14 +190,16 @@ export default (app: Router): void => {
       }
 
       const validateData = await oktaClient.http.http(validateURL, validateRequest)
-      const validateUser = await validateData.json() as [AppUser?]
+      const validateUser = await validateData.json() as [AppUser] | []
 
       if (validateUser.length === 0) {
         return res.status(409).json({ error: 'A user with this e-mail does not exist' })
       }
+
       // Get reset token for user
 
-      const resetURL = `${process.env.OKTA_DOMAIN as string}/api/v1/users/${validateUser[0].id}/lifecycle/reset_password?sendEmail=false`
+      const id = validateUser.length ? validateUser[0].id : ''
+      const resetURL = `${process.env.OKTA_DOMAIN as string}/api/v1/users/${id}/lifecycle/reset_password?sendEmail=false`
       const resetRequest = {
         method: 'post',
         headers: {
