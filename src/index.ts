@@ -15,7 +15,12 @@ const createApp = (): Express.Application => {
   return app
 }
 
-const handler = serverless(createApp())
+const handler = serverless(createApp(), {
+  request: (req, event, context) => {
+    req.event = event // eslint-disable-line
+    req.context = context // eslint-disable-line
+  }
+})
 
 export {
   authorizer,

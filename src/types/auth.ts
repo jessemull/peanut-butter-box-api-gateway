@@ -29,7 +29,12 @@ export interface Activation {
   password: string;
 }
 
-export interface ActivationResponse {
+export interface Reset {
+  resetToken: string;
+  password: string;
+}
+
+export interface AuthnResponse {
   stateToken: string;
 }
 

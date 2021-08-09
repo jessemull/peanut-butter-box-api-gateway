@@ -76,6 +76,18 @@ functions:
           authorizer: authorizer
           method: put
           path: /users
+  requestUserReset:
+    handler: src/index.handler
+    events:
+      - http:
+          method: post
+          path: /users/request/reset
+  userReset:
+    handler: src/index.handler
+    events:
+      - http:
+          method: post
+          path: /users/reset
   verifyUser:
     handler: src/index.handler
     events:

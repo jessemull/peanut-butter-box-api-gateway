@@ -25,6 +25,7 @@ module.exports = {
         'checksVoidReturn': false
       }
     ],
-    '@typescript-eslint/unbound-method': 0
+    '@typescript-eslint/unbound-method': 0,
+    '@typescript-eslint/prefer-regexp-exec': 0
   }
 }
