@@ -76,6 +76,12 @@ functions:
           authorizer: authorizer
           method: put
           path: /users
+  verifyUser:
+    handler: src/index.handler
+    events:
+      - http:
+          method: post
+          path: /users/verify
 
 plugins:
   - serverless-finch

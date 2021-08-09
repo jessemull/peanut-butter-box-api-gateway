@@ -98,10 +98,13 @@ export default (app: Router): void => {
         Key: {
           email: passwordResponse._embedded.user.profile.login
         },
-        UpdateExpression: 'set password = :p, status = :s',
+        UpdateExpression: 'set password = :p, #st = :s',
         ExpressionAttributeValues: {
           ':p': hashedPassword,
           ':s': 'ACTIVE'
+        },
+        ExpressionAttributeNames: {
+          '#st': 'status'
         },
         ReturnValues: 'ALL_OLD'
       }
