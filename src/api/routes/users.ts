@@ -58,7 +58,7 @@ export default (app: Router): void => {
 
       // Swap activation token for state token
 
-      const url = 'https://dev-82492334.okta.com/api/v1/authn'
+      const url = `${process.env.OKTA_DOMAIN as string}/api/v1/authn`
       const request = {
         method: 'post',
         headers: {
@@ -73,7 +73,7 @@ export default (app: Router): void => {
       const activationData = await oktaClient.http.http(url, request)
       const activationResponse = await activationData.json() as AuthnResponse
 
-      const urlPasswordReset = 'https://dev-82492334.okta.com/api/v1/authn/credentials/reset_password'
+      const urlPasswordReset = `${process.env.OKTA_DOMAIN as string}/api/v1/authn/credentials/reset_password`
       const requestPasswordReset = {
         method: 'post',
         headers: {
@@ -121,7 +121,7 @@ export default (app: Router): void => {
 
       // Swap reset token for state token
 
-      const url = 'https://dev-82492334.okta.com/api/v1/authn'
+      const url = `${process.env.OKTA_DOMAIN as string}/api/v1/authn`
       const request = {
         method: 'post',
         headers: {
@@ -136,7 +136,7 @@ export default (app: Router): void => {
       const resetData = await oktaClient.http.http(url, request)
       const resetResponse = await resetData.json() as AuthnResponse
 
-      const urlPasswordReset = 'https://dev-82492334.okta.com/api/v1/authn/credentials/reset_password'
+      const urlPasswordReset = `${process.env.OKTA_DOMAIN as string}/api/v1/authn/credentials/reset_password`
       const requestPasswordReset = {
         method: 'post',
         headers: {
@@ -180,7 +180,7 @@ export default (app: Router): void => {
 
       // Check if they are already registered
 
-      const validateURL = `https://dev-82492334.okta.com/api/v1/users?limit=200&filter=profile.email+eq+%22${encodeURIComponent(email)}%22`
+      const validateURL = `${process.env.OKTA_DOMAIN as string}/api/v1/users?limit=200&filter=profile.email+eq+%22${encodeURIComponent(email)}%22`
       const validateRequest = {
         method: 'get',
         headers: {
@@ -197,7 +197,7 @@ export default (app: Router): void => {
       }
       // Get reset token for user
 
-      const resetURL = `https://dev-82492334.okta.com/api/v1/users/${validateUser[0].id}/lifecycle/reset_password?sendEmail=false`
+      const resetURL = `${process.env.OKTA_DOMAIN as string}/api/v1/users/${validateUser[0].id}/lifecycle/reset_password?sendEmail=false`
       const resetRequest = {
         method: 'post',
         headers: {
@@ -224,11 +224,11 @@ export default (app: Router): void => {
           Body: {
             Html: {
               Charset: 'UTF-8',
-              Data: `http://localhost:3000/reset?token=${token}`
+              Data: `${process.env.BASE_URL as string}/reset?token=${token}`
             },
             Text: {
               Charset: 'UTF-8',
-              Data: `http://localhost:3000/reset?token=${token}`
+              Data: `${process.env.BASE_URL as string}/reset?token=${token}`
             }
           },
           Subject: {
@@ -257,7 +257,7 @@ export default (app: Router): void => {
 
       // Check if they are already registered
 
-      const validateURL = `https://dev-82492334.okta.com/api/v1/users?limit=200&filter=profile.email+eq+%22${encodeURIComponent(email)}%22`
+      const validateURL = `${process.env.OKTA_DOMAIN as string}/api/v1/users?limit=200&filter=profile.email+eq+%22${encodeURIComponent(email)}%22`
       const validateRequest = {
         method: 'get',
         headers: {
@@ -275,7 +275,7 @@ export default (app: Router): void => {
 
       // Create inactive OKTA user
 
-      const url = 'https://dev-82492334.okta.com/api/v1/users?activate=false'
+      const url = `${process.env.OKTA_DOMAIN as string}/api/v1/users?activate=false`
       const request = {
         method: 'post',
         headers: {
@@ -297,7 +297,7 @@ export default (app: Router): void => {
 
       // Get activation token for user
 
-      const activationURL = `https://dev-82492334.okta.com/api/v1/users/${user.id}/lifecycle/activate?sendEmail=false`
+      const activationURL = `${process.env.OKTA_DOMAIN as string}/api/v1/users/${user.id}/lifecycle/activate?sendEmail=false`
       const activationRequest = {
         method: 'post',
         headers: {
@@ -321,11 +321,11 @@ export default (app: Router): void => {
           Body: {
             Html: {
               Charset: 'UTF-8',
-              Data: `http://localhost:3000/activate?token=${activation.activationToken}`
+              Data: `${process.env.BASE_URL as string}/activate?token=${activation.activationToken}`
             },
             Text: {
               Charset: 'UTF-8',
-              Data: `http://localhost:3000/activate?token=${activation.activationToken}`
+              Data: `${process.env.BASE_URL as string}/activate?token=${activation.activationToken}`
             }
           },
           Subject: {
