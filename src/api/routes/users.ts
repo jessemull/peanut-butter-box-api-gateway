@@ -4,7 +4,8 @@ import dynamoDb from '../../lib/dynamo'
 import ses from '../../lib/ses-client'
 import getOktaClient from '../../lib/okta'
 import logger from '../../lib/logger'
-import { JWT, User } from '../../types'
+import hashPassword from '../../lib/hash'
+import { Activation, ActivationResponse, JWT, PasswordResetResponse, User } from '../../types'
 import { AppUser } from '@okta/okta-sdk-nodejs'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
@@ -53,9 +54,69 @@ export default (app: Router): void => {
     }
   })
 
+  route.post('/verify', async (req: Request, res: Response): Promise<void | Response> => {
+    try {
+      const { activationToken, password } = req.body as Activation
+      const oktaClient = await getOktaClient()
+
+      // Swap activation token for state token
+
+      const url = 'https://dev-82492334.okta.com/api/v1/authn'
+      const request = {
+        method: 'post',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token: activationToken
+        })
+      }
+
+      const activationData = await oktaClient.http.http(url, request)
+      const activationResponse = await activationData.json() as ActivationResponse
+
+      const urlPasswordReset = 'https://dev-82492334.okta.com/api/v1/authn/credentials/reset_password'
+      const requestPasswordReset = {
+        method: 'post',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          newPassword: password,
+          stateToken: activationResponse.stateToken
+        })
+      }
+
+      const passwordData = await oktaClient.http.http(urlPasswordReset, requestPasswordReset)
+      const passwordResponse = await passwordData.json() as PasswordResetResponse
+      const hashedPassword = await hashPassword(password)
+
+      const params = {
+        TableName: USERS_TABLE,
+        Key: {
+          email: passwordResponse._embedded.user.profile.login
+        },
+        UpdateExpression: 'set password = :p, status = :s',
+        ExpressionAttributeValues: {
+          ':p': hashedPassword,
+          ':s': 'ACTIVE'
+        },
+        ReturnValues: 'ALL_OLD'
+      }
+      await dynamoDb.update(params).promise()
+
+      res.json(passwordResponse)
+    } catch (error) {
+      logger.error(error)
+      res.status(500).json({ error: 'Could not verify user' })
+    }
+  })
+
   route.post('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const { email, firstName, lastName, password } = req.body as User
+      const { email, firstName, lastName } = req.body as User
       const oktaClient = await getOktaClient()
 
       // Check if they are already registered

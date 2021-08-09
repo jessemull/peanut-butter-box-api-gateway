@@ -23,3 +23,22 @@ export interface AuthResponse {
     Statement: Array<Statement>;
   }
 }
+
+export interface Activation {
+  activationToken: string;
+  password: string;
+}
+
+export interface ActivationResponse {
+  stateToken: string;
+}
+
+export interface PasswordResetResponse {
+  _embedded: {
+    user: {
+      profile: {
+        login: string;
+      }
+    }
+  }
+}
