@@ -42,7 +42,7 @@ export const resetPassword = async (newPassword: string, stateToken: string): Pr
   return { email, response }
 }
 
-export const doesUserExist = async (email: string): Promise<AppUser | undefined> => {
+export const doesUserExist = async (email: string): Promise<AppUser | null> => {
   const client = await getOktaClient()
   const validateURL = `${oktaURL}/api/v1/users?limit=200&filter=profile.email+eq+%22${encodeURIComponent(email)}%22`
   const validateRequest = {
@@ -54,7 +54,7 @@ export const doesUserExist = async (email: string): Promise<AppUser | undefined>
   }
   const data = await client.http.http(validateURL, validateRequest)
   const users = await data.json() as [AppUser] | []
-  return users[0]
+  return users[0] || null
 }
 
 export const getResetToken = async (id: string): Promise<string> => {

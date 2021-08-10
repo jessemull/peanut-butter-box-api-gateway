@@ -4,7 +4,7 @@ import { CreateUserInput, UpdateUserInput, User } from '../types'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 
-export const getUser = async (email: string): Promise<User> => {
+export const getUser = async (email: string): Promise<User | null> => {
   const params = {
     TableName: USERS_TABLE,
     Key: {
