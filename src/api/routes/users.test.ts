@@ -8,8 +8,8 @@ import { AppUser, User } from '@okta/okta-sdk-nodejs'
 
 jest.mock('../../services')
 
-const { createUser: createDynamoUser, deleteUser: deleteDynamoUser, getUser, updateUser: updateDynamoUser } = mocked(DynamoDBUserService)
-const { deleteUser, doesUserExist, createUser, getActivationToken, updateUser } = mocked(OktaUserService)
+const { createUser: createDynamoUser, deleteUser: deleteDynamoUser, getUser, updateUser: updateDynamoUser, verifyUser } = mocked(DynamoDBUserService)
+const { deleteUser, doesUserExist, createUser, getActivationToken, getStateToken, resetPassword, updateUser } = mocked(OktaUserService)
 const { sendActivation } = mocked(EmailService)
 
 const sub = 'first.last@domain.com'
@@ -29,7 +29,7 @@ const getApp = (useAuth = true): Application => {
   return app
 }
 
-describe('/user', () => {
+describe('/users', () => {
   let app: Application
   beforeAll(() => {
     app = getApp()
@@ -138,6 +138,46 @@ describe('/user', () => {
       .set('Authorization', 'Bearer token')
       .expect(500)
     expect(response.body).toEqual({ error: 'Could not create user' })
+  })
+  it('POST /verify verifies user', async () => {
+    const passwordResponse = {
+      _embedded: {
+        user: {
+          profile: {
+            login: 'login'
+          }
+        }
+      }
+    }
+    const verify = {
+      activationToken: 'activationToken',
+      password: 'password'
+    }
+    getStateToken.mockResolvedValueOnce('stateToken')
+    resetPassword.mockResolvedValueOnce({ email: sub, response: passwordResponse })
+    const response = await supertest(app)
+      .post('/users/verify')
+      .send(verify)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(200)
+    expect(response.body).toEqual(passwordResponse)
+    expect(getStateToken).toHaveBeenCalledWith('activationToken')
+    expect(resetPassword).toHaveBeenCalledWith(verify.password, 'stateToken')
+    expect(verifyUser).toHaveBeenLastCalledWith(sub, verify.password)
+  })
+  it('POST /verify catches errors and returns 500', async () => {
+    const verify = {
+      activationToken: 'activationToken',
+      password: 'password'
+    }
+    const response = await supertest(app)
+      .post('/users/verify')
+      .send(verify)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(500)
+    expect(response.body).toEqual({ error: 'Could not verify user' })
   })
   it('PUT updates a user', async () => {
     const user = {
