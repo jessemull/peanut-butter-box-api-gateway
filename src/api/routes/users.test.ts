@@ -4,7 +4,7 @@ import { mocked } from 'ts-jest/utils'
 import client from '../../lib/dynamo'
 import getOktaClient from '../../lib/okta'
 import { Client } from '@okta/okta-sdk-nodejs'
-import express, { Application, NextFunction, RequestHandler } from 'express'
+import express, { Application, NextFunction } from 'express'
 import routes from '..'
 
 jest.mock('../../lib/dynamo')
