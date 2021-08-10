@@ -1,10 +1,6 @@
 import supertest from 'supertest'
 import { createApp } from '../..'
 
-jest.mock('fs', () => ({
-  readFileSync: jest.fn(() => ('{ "version": "1.0.0" }'))
-}))
-
 describe('/healthcheck', () => {
   let app: Express.Application
   beforeAll(() => {
