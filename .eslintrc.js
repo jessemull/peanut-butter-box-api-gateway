@@ -11,9 +11,10 @@ module.exports = {
   ignorePatterns: [],
   overrides: [
     {
-      excludedFiles: '*.test.*',
+      files: '*.test.*',
       rules: {
-        '@typescript-eslint/no-unsafe-return': 0
+        '@typescript-eslint/no-unsafe-return': 0,
+        '@typescript-eslint/no-explicit-any': 0
       }
     }
   ],
