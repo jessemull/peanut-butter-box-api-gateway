@@ -30,7 +30,7 @@ describe('authorizer', () => {
       expect(data).toEqual(policy)
       done()
     })
-    authorizer(event as any, {}, callback) // eslint-disable-line
+    authorizer(event as any, {}, callback)
   })
   it('should catch errors', (done) => {
     OktaJwtVerifier.prototype.verifyAccessToken = async () => Promise.reject(new Error())
@@ -42,7 +42,7 @@ describe('authorizer', () => {
       expect(error).toEqual(new Error('Unauthorized'))
       done()
     })
-    authorizer(event as any, {}, callback) // eslint-disable-line
+    authorizer(event as any, {}, callback)
   })
   it('should catch malformed bearer token', (done) => {
     const event = {
@@ -53,6 +53,6 @@ describe('authorizer', () => {
       expect(error).toEqual(new Error('Unauthorized'))
       done()
     })
-    authorizer(event as any, {}, callback) // eslint-disable-line
+    authorizer(event as any, {}, callback)
   })
 })

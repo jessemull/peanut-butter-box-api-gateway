@@ -11,7 +11,7 @@ export default (app: Router): void => {
 
   route.get('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string // eslint-disable-line
+      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
       if (!email) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
@@ -90,7 +90,7 @@ export default (app: Router): void => {
 
   route.put('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string // eslint-disable-line
+      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
       if (!email) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
@@ -106,7 +106,7 @@ export default (app: Router): void => {
 
   route.delete('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string // eslint-disable-line
+      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
       if (!email) {
         return res.status(401).json({ error: 'Unauthorized' })
       }

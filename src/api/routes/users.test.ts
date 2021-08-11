@@ -8,13 +8,13 @@ import { AppUser, User } from '@okta/okta-sdk-nodejs'
 
 jest.mock('../../services')
 
-const { createUser: createDynamoUser, deleteUser: deleteDynamoUser, getUser, updateUser: updateDynamoUser, verifyUser } = mocked(DynamoDBUserService)
-const { deleteUser, doesUserExist, createUser, getActivationToken, getStateToken, resetPassword, updateUser } = mocked(OktaUserService)
-const { sendActivation } = mocked(EmailService)
+const { createUser: createDynamoUser, deleteUser: deleteDynamoUser, getUser, resetUserPassword, updateUser: updateDynamoUser, verifyUser } = mocked(DynamoDBUserService)
+const { deleteUser, doesUserExist, createUser, getActivationToken, getResetToken, getStateToken, resetPassword, updateUser } = mocked(OktaUserService)
+const { sendActivation, sendPasswordReset } = mocked(EmailService)
 
 const sub = 'first.last@domain.com'
 
-const authorizationContextMiddleware = (req: Request & { event: any }, res: Response, next: NextFunction): void => { // eslint-disable-line
+const authorizationContextMiddleware = (req: Request & { event: any }, res: Response, next: NextFunction): void => {
   req.event = { requestContext: { authorizer: { claims: { sub } } } }
   next()
 }
@@ -22,7 +22,7 @@ const authorizationContextMiddleware = (req: Request & { event: any }, res: Resp
 const getApp = (useAuth = true): Application => {
   const app = express()
   if (useAuth) {
-    app.use(authorizationContextMiddleware as any) // eslint-disable-line
+    app.use(authorizationContextMiddleware as any)
   }
   app.use(bodyParser.json({ strict: false }))
   app.use(routes())
@@ -178,6 +178,93 @@ describe('/users', () => {
       .set('Authorization', 'Bearer token')
       .expect(500)
     expect(response.body).toEqual({ error: 'Could not verify user' })
+  })
+  it('POST /reset resets user password', async () => {
+    const passwordResponse = {
+      _embedded: {
+        user: {
+          profile: {
+            login: 'login'
+          }
+        }
+      }
+    }
+    const reset = {
+      resetToken: 'resetToken',
+      password: 'password'
+    }
+    getStateToken.mockResolvedValueOnce('stateToken')
+    resetPassword.mockResolvedValueOnce({ email: sub, response: passwordResponse })
+    const response = await supertest(app)
+      .post('/users/reset')
+      .send(reset)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(200)
+    expect(response.body).toEqual(passwordResponse)
+    expect(getStateToken).toHaveBeenCalledWith('activationToken')
+    expect(resetPassword).toHaveBeenCalledWith(reset.password, 'stateToken')
+    expect(resetUserPassword).toHaveBeenLastCalledWith(sub, reset.password)
+  })
+  it('POST /reset catches errors and returns 500', async () => {
+    const reset = {
+      resetToken: 'activationToken',
+      password: 'password'
+    }
+    const response = await supertest(app)
+      .post('/users/reset')
+      .send(reset)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(500)
+    expect(response.body).toEqual({ error: 'Could not reset user password' })
+  })
+  it('POST /request/reset requests a user password reset via e-mail', async () => {
+    const user = {
+      id: 'id'
+    }
+    const resetRequest = {
+      email: sub
+    }
+    doesUserExist.mockResolvedValueOnce(user as AppUser)
+    getResetToken.mockResolvedValueOnce('resetToken')
+    await supertest(app)
+      .post('/users/request/reset')
+      .send(resetRequest)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(200)
+    expect(doesUserExist).toHaveBeenCalledWith(sub)
+    expect(getResetToken).toHaveBeenCalledWith(user.id)
+    expect(sendPasswordReset).toHaveBeenLastCalledWith('resetToken')
+  })
+  it('POST /request/reset returns 404 if the user does not exist', async () => {
+    const resetRequest = {
+      email: sub
+    }
+    doesUserExist.mockResolvedValueOnce(null)
+    const response = await supertest(app)
+      .post('/users/request/reset')
+      .send(resetRequest)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(404)
+    expect(response.body).toEqual({ error: 'A user with this e-mail does not exist' })
+  })
+  it('POST /request/reset catches errors and returns 500', async () => {
+    const resetRequest = {
+      email: sub
+    }
+    doesUserExist.mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const response = await supertest(app)
+      .post('/users/request/reset')
+      .send(resetRequest)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(500)
+    expect(response.body).toEqual({ error: 'Could not reset user password' })
   })
   it('PUT updates a user', async () => {
     const user = {

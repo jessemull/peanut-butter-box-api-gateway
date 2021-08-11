@@ -6,8 +6,7 @@ describe('error middleware', () => {
     const res = { status: jest.fn(), json: jest.fn() }
     const next = jest.fn()
     const error = { message: 'error', name: 'name' }
-    errorMiddleware(error as any, req as any, res as any, next) // eslint-disable-line
-    expect(res.status).toHaveBeenLastCalledWith(500)
+    errorMiddleware(error as any, req as any, res as any, next)
     expect(res.json).toHaveBeenLastCalledWith({
       errors: {
         message: 'error'

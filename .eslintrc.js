@@ -9,6 +9,14 @@ module.exports = {
     'plugin:@typescript-eslint/recommended-requiring-type-checking'
   ],
   ignorePatterns: [],
+  overrides: [
+    {
+      excludedFiles: '*.test.*',
+      rules: {
+        '@typescript-eslint/no-unsafe-return': 0
+      }
+    }
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 12,
