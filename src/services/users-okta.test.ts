@@ -7,16 +7,26 @@ jest.mock('../lib/okta')
 const getClient = mocked(getOktaClient, true)
 
 describe('okta user service', () => {
-  it('should get state token', async () => {
-    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce({ stateToken: 'stateToken' }) }) } }) as any)
-    const response = await getStateToken('token')
-    expect(response).toEqual('stateToken')
+  it('should create user', async () => {
+    const user = {
+      email: 'first.last@domain.com',
+      firstName: 'first',
+      lastName: 'last'
+    }
+    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(user) }) } }) as any)
+    const response = await createUser(user)
+    expect(response).toEqual(user)
   })
-  it('should reset password', async () => {
-    const reset = { _embedded: { user: { profile: { login: 'email' } } } }
-    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(reset) }) } }) as any)
-    const response = await resetPassword('password', 'token')
-    expect(response).toEqual({ email: 'email', response: reset })
+  it('should delete user', async () => {
+    const email = 'first.last@domain.com'
+    const user = {
+      deactivate: jest.fn(),
+      delete: jest.fn()
+    }
+    getClient.mockImplementationOnce(() => Promise.resolve({ getUser: jest.fn().mockResolvedValueOnce(user) }) as any)
+    await deleteUser(email)
+    expect(user.deactivate).toHaveBeenCalledTimes(1)
+    expect(user.delete).toHaveBeenCalledTimes(1)
   })
   it('should check if user exists', async () => {
     const users = [{ id: 'id' }]
@@ -28,6 +38,14 @@ describe('okta user service', () => {
     getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce([]) }) } }) as any)
     const response = await doesUserExist('email')
     expect(response).toEqual(null)
+  })
+  it('should get activation token', async () => {
+    const token = {
+      activationToken: 'token'
+    }
+    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(token) }) } }) as any)
+    const response = await getActivationToken('id')
+    expect(response).toEqual(token.activationToken)
   })
   it('should get reset token', async () => {
     const token = 'token'
@@ -42,23 +60,16 @@ describe('okta user service', () => {
     const response = await getResetToken('id')
     expect(response).toEqual('')
   })
-  it('should create user', async () => {
-    const user = {
-      email: 'first.last@domain.com',
-      firstName: 'first',
-      lastName: 'last'
-    }
-    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(user) }) } }) as any)
-    const response = await createUser(user)
-    expect(response).toEqual(user)
+  it('should get state token', async () => {
+    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce({ stateToken: 'stateToken' }) }) } }) as any)
+    const response = await getStateToken('token')
+    expect(response).toEqual('stateToken')
   })
-  it('should get activation token', async () => {
-    const token = {
-      activationToken: 'token'
-    }
-    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(token) }) } }) as any)
-    const response = await getActivationToken('id')
-    expect(response).toEqual(token.activationToken)
+  it('should reset password', async () => {
+    const reset = { _embedded: { user: { profile: { login: 'email' } } } }
+    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(reset) }) } }) as any)
+    const response = await resetPassword('password', 'token')
+    expect(response).toEqual({ email: 'email', response: reset })
   })
   it('should update user', async () => {
     const input = {
@@ -84,16 +95,5 @@ describe('okta user service', () => {
     const response = await updateUser(input)
     expect(response).toEqual(expected)
     expect(mockedResponse.update).toHaveBeenCalledTimes(1)
-  })
-  it('should delete user', async () => {
-    const email = 'first.last@domain.com'
-    const user = {
-      deactivate: jest.fn(),
-      delete: jest.fn()
-    }
-    getClient.mockImplementationOnce(() => Promise.resolve({ getUser: jest.fn().mockResolvedValueOnce(user) }) as any)
-    await deleteUser(email)
-    expect(user.deactivate).toHaveBeenCalledTimes(1)
-    expect(user.delete).toHaveBeenCalledTimes(1)
   })
 })
