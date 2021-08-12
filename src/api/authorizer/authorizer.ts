@@ -1,6 +1,6 @@
 import OktaJwtVerifier, { Jwt } from '@okta/jwt-verifier'
 import logger from '../../lib/logger'
-import { AuthResponse, Event, JWT } from '../../types'
+import { AuthResponse, Event } from '../../types'
 
 const oktaJwtVerifier = new OktaJwtVerifier({
   issuer: `${process.env.OKTA_DOMAIN as string}/oauth2/default`
