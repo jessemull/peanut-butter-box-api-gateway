@@ -1,6 +1,6 @@
-import OktaJwtVerifier from '@okta/jwt-verifier'
+import OktaJwtVerifier, { Jwt } from '@okta/jwt-verifier'
 import logger from '../../lib/logger'
-import { AuthResponse, Event } from '../../types'
+import { AuthResponse, Event, JWT } from '../../types'
 
 const oktaJwtVerifier = new OktaJwtVerifier({
   issuer: `${process.env.OKTA_DOMAIN as string}/oauth2/default`
@@ -14,8 +14,8 @@ const authorizer = (event: Event, context, callback: (error: any, response?: any
     callback(new Error('Unauthorized'))
   }
   oktaJwtVerifier.verifyAccessToken(bearerToken[1], process.env.OKTA_JWT_AUDIENCE as string)
-    .then(() => {
-      callback(null, generatePolicy('user', 'Allow', event.methodArn))
+    .then((jwt: Jwt) => {
+      callback(null, generatePolicy('user', 'Allow', event.methodArn, jwt.claims.sub))
     })
     .catch(error => {
       logger.error(error)
@@ -23,7 +23,10 @@ const authorizer = (event: Event, context, callback: (error: any, response?: any
     })
 }
 
-const generatePolicy = (principalId: string, effect: string, resource: string): AuthResponse => ({
+const generatePolicy = (principalId: string, effect: string, resource: string, email: string): AuthResponse => ({
+  context: {
+    email
+  },
   principalId,
   policyDocument: {
     Version: '2012-10-17',

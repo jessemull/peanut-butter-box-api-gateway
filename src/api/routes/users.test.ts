@@ -15,7 +15,7 @@ const { sendActivation, sendPasswordReset } = mocked(EmailService)
 const sub = 'first.last@domain.com'
 
 const authorizationContextMiddleware = (req: Request & { event: any }, res: Response, next: NextFunction): void => {
-  req.event = { requestContext: { authorizer: { claims: { sub } } } }
+  req.event = { requestContext: { authorizer: { email: sub } } }
   next()
 }
 
@@ -77,7 +77,7 @@ describe('/users', () => {
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(401)
-    expect(response.body).toEqual({ error: 'Unauthorized' })
+    expect(response.body).toEqual({ error: 'Invalid user JWT' })
   })
   it('POST creates a new user', async () => {
     const user = {
@@ -313,7 +313,7 @@ describe('/users', () => {
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(401)
-    expect(response.body).toEqual({ error: 'Unauthorized' })
+    expect(response.body).toEqual({ error: 'Invalid user JWT' })
   })
   it('DELETE removes a user', async () => {
     await supertest(app)
@@ -341,6 +341,6 @@ describe('/users', () => {
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(401)
-    expect(response.body).toEqual({ error: 'Unauthorized' })
+    expect(response.body).toEqual({ error: 'Invalid user JWT' })
   })
 })

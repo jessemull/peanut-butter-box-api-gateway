@@ -14,6 +14,9 @@ export interface Statement {
 }
 
 export interface AuthResponse {
+  context: {
+    email: string
+  }
   principalId: string;
   policyDocument?:{
     Version: string;

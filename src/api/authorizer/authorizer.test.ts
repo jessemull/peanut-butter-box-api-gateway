@@ -10,9 +10,7 @@ describe('authorizer', () => {
     }
     const policy = {
       context: {
-        claims: {
-          sub: 'first.last@domain.com'
-        }
+        email: 'first.last@domain.com'
       },
       policyDocument: {
         Statement: [

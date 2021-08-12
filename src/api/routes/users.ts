@@ -11,13 +11,12 @@ export default (app: Router): void => {
 
   route.get('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
+      const email = get(req, 'event.requestContext.authorizer.email', '') as string
       if (!email) {
         logger.error('Invalid user JWT')
-        return res.status(401).json({ error: 'Unauthorized claim' })
+        return res.status(401).json({ error: 'Invalid user JWT' })
       }
-      console.log(req)
-      const user = await DynamoDBUserService.getUser('jessemull+inactive@gmail.com')
+      const user = await DynamoDBUserService.getUser(email)
       if (user) {
         const { id, email, firstName, lastName, login } = user
         res.json({ id, email, firstName, lastName, login })
@@ -92,10 +91,10 @@ export default (app: Router): void => {
 
   route.put('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
+      const email = get(req, 'event.requestContext.authorizer.email', '') as string
       if (!email) {
         logger.error('Invalid user JWT')
-        return res.status(401).json({ error: 'Unauthorized claim' })
+        return res.status(401).json({ error: 'Invalid user JWT' })
       }
       const { firstName, lastName } = req.body as User
       const user = await OktaUserService.updateUser({ email, firstName, lastName })
@@ -109,10 +108,10 @@ export default (app: Router): void => {
 
   route.delete('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
+      const email = get(req, 'event.requestContext.authorizer.email', '') as string
       if (!email) {
         logger.error('Invalid user JWT')
-        return res.status(401).json({ error: 'Unauthorized claim' })
+        return res.status(401).json({ error: 'Invalid user JWT' })
       }
       await OktaUserService.deleteUser(email)
       await DynamoDBUserService.deleteUser(email)
