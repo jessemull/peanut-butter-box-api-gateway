@@ -14,9 +14,6 @@ export interface Statement {
 }
 
 export interface AuthResponse {
-  context: {
-    claims: any; // eslint-disable-line
-  };
   principalId: string;
   policyDocument?:{
     Version: string;

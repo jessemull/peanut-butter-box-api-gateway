@@ -13,9 +13,11 @@ export default (app: Router): void => {
     try {
       const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
       if (!email) {
-        return res.status(401).json({ error: 'Unauthorized' })
+        logger.error('Invalid user JWT')
+        return res.status(401).json({ error: 'Unauthorized claim' })
       }
-      const user = await DynamoDBUserService.getUser(email)
+      console.log(req)
+      const user = await DynamoDBUserService.getUser('jessemull+inactive@gmail.com')
       if (user) {
         const { id, email, firstName, lastName, login } = user
         res.json({ id, email, firstName, lastName, login })
@@ -92,7 +94,8 @@ export default (app: Router): void => {
     try {
       const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
       if (!email) {
-        return res.status(401).json({ error: 'Unauthorized' })
+        logger.error('Invalid user JWT')
+        return res.status(401).json({ error: 'Unauthorized claim' })
       }
       const { firstName, lastName } = req.body as User
       const user = await OktaUserService.updateUser({ email, firstName, lastName })
@@ -108,7 +111,8 @@ export default (app: Router): void => {
     try {
       const email = get(req, 'event.requestContext.authorizer.claims.sub', '') as string
       if (!email) {
-        return res.status(401).json({ error: 'Unauthorized' })
+        logger.error('Invalid user JWT')
+        return res.status(401).json({ error: 'Unauthorized claim' })
       }
       await OktaUserService.deleteUser(email)
       await DynamoDBUserService.deleteUser(email)

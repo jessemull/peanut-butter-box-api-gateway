@@ -2,7 +2,7 @@ import OktaJwtVerifier, { Jwt } from '@okta/jwt-verifier'
 import authorizer from './authorizer'
 
 describe('authorizer', () => {
-  it('should validate JWT and return policy', async () => {
+  it('should validate JWT and return policy', (done) => {
     OktaJwtVerifier.prototype.verifyAccessToken = async () => Promise.resolve({ claims: { sub: 'first.last@domain.com' } } as Jwt)
     const event = {
       authorizationToken: 'Bearer token',
@@ -26,24 +26,33 @@ describe('authorizer', () => {
       },
       principalId: 'user'
     }
-    const data = await authorizer(event as any)
-    expect(data).toEqual(policy)
+    const callback = jest.fn().mockImplementationOnce((_, data) => {
+      expect(data).toEqual(policy)
+      done()
+    })
+    authorizer(event as any, {}, callback)
   })
-  it('should catch errors', async () => {
+  it('should catch errors', (done) => {
     OktaJwtVerifier.prototype.verifyAccessToken = async () => Promise.reject(new Error())
     const event = {
       authorizationToken: 'Bearer token',
       methodArn: 'methodArn'
     }
-    const error = await authorizer(event as any)
-    expect(error).toEqual(new Error('Unauthorized'))
+    const callback = jest.fn().mockImplementationOnce((error) => {
+      expect(error).toEqual(new Error('Unauthorized'))
+      done()
+    })
+    authorizer(event as any, {}, callback)
   })
-  it('should catch malformed bearer token', async () => {
+  it('should catch malformed bearer token', (done) => {
     const event = {
       authorizationToken: 'InvalidBearer token',
       methodArn: 'methodArn'
     }
-    const error = await authorizer(event as any)
-    expect(error).toEqual(new Error('Unauthorized'))
+    const callback = jest.fn().mockImplementationOnce((error) => {
+      expect(error).toEqual(new Error('Unauthorized'))
+      done()
+    })
+    authorizer(event as any, {}, callback)
   })
 })

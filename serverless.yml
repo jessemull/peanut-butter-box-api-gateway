@@ -28,7 +28,17 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn" ] }
+            - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn"] }
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - arn:aws:secretsmanager:us-east-1:771265364914:secret:okta-api-key-5kfnQA
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+          Resource:
+            - arn:aws:ses:us-east-1:771265364914:identity/*
   environment:
     API_KEY_SECRET_NAME: 'okta-api-key'
     AUDIENCE: api://default
@@ -42,14 +52,13 @@ functions:
     handler: src/index.handler
     events:
       - http: ANY /
-      - http: ANY /{proxy+}
   authorizer:
     handler: src/index.authorizer
   getHealthcheck:
     handler: src/index.handler
     events:
       - http:
-          path: /healthcheck/{proxy+}
+          path: /healthcheck
           method: get
   deleteUser:
     handler: src/index.handler
@@ -57,14 +66,14 @@ functions:
       - http: 
           authorizer: authorizer
           method: delete
-          path: /users/{proxy+}
+          path: /users
   getUser:
     handler: src/index.handler
     events:
       - http: 
           authorizer: authorizer
           method: get
-          path: /users/{proxy+}
+          path: /users
         
   postUser:
     handler: src/index.handler
