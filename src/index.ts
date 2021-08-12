@@ -17,7 +17,8 @@ const createApp = (): Application => {
 
 const handler = serverless(createApp(), {
   request: (req, event, context) => {
-    req = { ...req, event, context } // eslint-disable-line
+    req.event = event // eslint-disable-line
+    req.context = context // eslint-disable-line
   }
 })
 
