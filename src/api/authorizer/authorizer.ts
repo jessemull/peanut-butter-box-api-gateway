@@ -6,21 +6,20 @@ const oktaJwtVerifier = new OktaJwtVerifier({
   issuer: `${process.env.OKTA_DOMAIN as string}/oauth2/default`
 })
 
-const authorizer = (event: Event, context, callback: (error: any, response?: any) => void) => { // eslint-disable-line
+const authorizer = async (event: Event): Promise<Error | AuthResponse> => {
   logger.info(event.toString())
   const bearerToken = event.authorizationToken.split(' ')
   if (bearerToken.length > 2 || bearerToken[0] !== 'Bearer') {
     logger.error(new Error('Invalid JWT'))
-    callback(new Error('Unauthorized'))
+    return new Error('Unauthorized')
   }
-  oktaJwtVerifier.verifyAccessToken(bearerToken[1], process.env.OKTA_JWT_AUDIENCE as string)
-    .then(jwt => {
-      callback(null, generatePolicy('user', 'Allow', event.methodArn, jwt.claims))
-    })
-    .catch(error => {
-      logger.error(error)
-      callback(new Error('Unauthorized'))
-    })
+  try {
+    const jwt = await oktaJwtVerifier.verifyAccessToken(bearerToken[1], process.env.OKTA_JWT_AUDIENCE as string)
+    return generatePolicy('user', 'Allow', event.methodArn, jwt.claims)
+  } catch (error) {
+    logger.error(error)
+    return new Error('Unauthorized')
+  }
 }
 
 const generatePolicy = (principalId: string, effect: string, resource: string, claims: any): AuthResponse => ({ // eslint-disable-line
