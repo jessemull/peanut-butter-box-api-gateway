@@ -1,7 +1,7 @@
 {
-  "name": "serverless-api",
+  "name": "peanut-butter-box-api-gateway",
   "version": "1.0.0",
-  "description": "",
+  "description": "Peanut butter box subscription service back-end",
   "main": "index.js",
   "dependencies": {
     "@okta/jwt-verifier": "^2.3.0",
@@ -49,6 +49,6 @@
     "start": "nodemon --exec serverless offline --httpPort 8080 --printOutput",
     "test": "jest"
   },
-  "author": "",
+  "author": "jessemull@gmail.com",
   "license": "ISC"
 }

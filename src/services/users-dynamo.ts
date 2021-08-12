@@ -4,19 +4,6 @@ import { CreateUserInput, UpdateUserInput, User } from '../types'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 
-export const getUser = async (email: string): Promise<User | null> => {
-  const params = {
-    TableName: USERS_TABLE,
-    Key: {
-      email
-    }
-  }
-
-  const data = await client.get(params).promise()
-
-  return data.Item as User
-}
-
 export const createUser = async ({ id, email, firstName, lastName }: CreateUserInput): Promise<void> => {
   const params = {
     TableName: USERS_TABLE,
@@ -33,24 +20,25 @@ export const createUser = async ({ id, email, firstName, lastName }: CreateUserI
   await client.put(params).promise()
 }
 
-export const verifyUser = async (email: string, password: string): Promise<void> => {
-  const hashedPassword = await hashPassword(password)
+export const deleteUser = async (email: string): Promise<void> => {
   const params = {
     TableName: USERS_TABLE,
     Key: {
       email
-    },
-    UpdateExpression: 'set password = :p, #st = :s',
-    ExpressionAttributeValues: {
-      ':p': hashedPassword,
-      ':s': 'ACTIVE'
-    },
-    ExpressionAttributeNames: {
-      '#st': 'status'
-    },
-    ReturnValues: 'ALL_OLD'
+    }
   }
-  await client.update(params).promise()
+  await client.delete(params).promise()
+}
+
+export const getUser = async (email: string): Promise<User | null> => {
+  const params = {
+    TableName: USERS_TABLE,
+    Key: {
+      email
+    }
+  }
+  const data = await client.get(params).promise()
+  return data.Item as User
 }
 
 export const resetUserPassword = async (email: string, password: string): Promise<void> => {
@@ -87,12 +75,22 @@ export const updateUser = async ({ email, firstName, lastName }: UpdateUserInput
   await client.update(params).promise()
 }
 
-export const deleteUser = async (email: string): Promise<void> => {
+export const verifyUser = async (email: string, password: string): Promise<void> => {
+  const hashedPassword = await hashPassword(password)
   const params = {
     TableName: USERS_TABLE,
     Key: {
       email
-    }
+    },
+    UpdateExpression: 'set password = :p, #st = :s',
+    ExpressionAttributeValues: {
+      ':p': hashedPassword,
+      ':s': 'ACTIVE'
+    },
+    ExpressionAttributeNames: {
+      '#st': 'status'
+    },
+    ReturnValues: 'ALL_OLD'
   }
-  await client.delete(params).promise()
+  await client.update(params).promise()
 }

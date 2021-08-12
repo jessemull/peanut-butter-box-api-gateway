@@ -6,23 +6,10 @@ const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 
 jest.mock('../lib/dynamo')
 jest.mock('../lib/hash', () => (password) => password)
+
 const { delete: dynamoDelete, get, put, update } = mocked(client)
 
 describe('dynamo user service', () => {
-  it('should get user', async () => {
-    const email = 'first.last@domain.com'
-    const params = {
-      TableName: USERS_TABLE,
-      Key: {
-        email
-      }
-    }
-    const user = { id: 'id' }
-    get.mockImplementationOnce(() => ({ promise: () => Promise.resolve({ Item: user }) } as any))
-    const response = await getUser(email)
-    expect(response).toEqual(user)
-    expect(get).toHaveBeenLastCalledWith(params)
-  })
   it('should create user', async () => {
     const user = {
       id: 'id',
@@ -43,27 +30,31 @@ describe('dynamo user service', () => {
     await createUser(user)
     expect(put).toHaveBeenCalledWith(params)
   })
-  it('should verify user', async () => {
+  it('should delete user', async () => {
     const email = 'first.last@domain.com'
-    const password = 'password'
     const params = {
       TableName: USERS_TABLE,
       Key: {
         email
-      },
-      UpdateExpression: 'set password = :p, #st = :s',
-      ExpressionAttributeValues: {
-        ':p': password,
-        ':s': 'ACTIVE'
-      },
-      ExpressionAttributeNames: {
-        '#st': 'status'
-      },
-      ReturnValues: 'ALL_OLD'
+      }
     }
-    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve() } as any))
-    await verifyUser(email, password)
-    expect(update).toHaveBeenCalledWith(params)
+    dynamoDelete.mockImplementationOnce(() => ({ promise: () => Promise.resolve() } as any))
+    await deleteUser(email)
+    expect(dynamoDelete).toHaveBeenLastCalledWith(params)
+  })
+  it('should get user', async () => {
+    const email = 'first.last@domain.com'
+    const params = {
+      TableName: USERS_TABLE,
+      Key: {
+        email
+      }
+    }
+    const user = { id: 'id' }
+    get.mockImplementationOnce(() => ({ promise: () => Promise.resolve({ Item: user }) } as any))
+    const response = await getUser(email)
+    expect(response).toEqual(user)
+    expect(get).toHaveBeenLastCalledWith(params)
   })
   it('should reset user password', async () => {
     const password = 'password'
@@ -105,16 +96,26 @@ describe('dynamo user service', () => {
     await updateUser(user)
     expect(update).toHaveBeenLastCalledWith(params)
   })
-  it('should delete user', async () => {
+  it('should verify user', async () => {
     const email = 'first.last@domain.com'
+    const password = 'password'
     const params = {
       TableName: USERS_TABLE,
       Key: {
         email
-      }
+      },
+      UpdateExpression: 'set password = :p, #st = :s',
+      ExpressionAttributeValues: {
+        ':p': password,
+        ':s': 'ACTIVE'
+      },
+      ExpressionAttributeNames: {
+        '#st': 'status'
+      },
+      ReturnValues: 'ALL_OLD'
     }
-    dynamoDelete.mockImplementationOnce(() => ({ promise: () => Promise.resolve() } as any))
-    await deleteUser(email)
-    expect(dynamoDelete).toHaveBeenLastCalledWith(params)
+    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve() } as any))
+    await verifyUser(email, password)
+    expect(update).toHaveBeenCalledWith(params)
   })
 })

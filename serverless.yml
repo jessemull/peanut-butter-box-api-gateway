@@ -99,7 +99,6 @@ functions:
           path: /users/verify
 
 plugins:
-  - serverless-finch
   - serverless-plugin-typescript
   - serverless-offline
 

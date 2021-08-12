@@ -1,6 +1,7 @@
 import { mocked } from 'ts-jest/utils'
 import client from '../lib/ses-client'
 import { sendActivation, sendPasswordReset } from './email'
+
 jest.mock('../lib/ses-client')
 
 const baseUrl = process.env.BASE_URL as string
@@ -8,6 +9,7 @@ const baseUrl = process.env.BASE_URL as string
 const { sendEmail } = mocked(client)
 
 sendEmail.mockImplementation(() => ({ promise: () => Promise.resolve() }) as any)
+
 describe('email service', () => {
   it('should send password reset', async () => {
     const sesParams = {
