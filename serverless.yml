@@ -4,16 +4,18 @@ configValidationMode: error
 
 custom:
   baseUrl:
-    dev: http://localhost:3000
+    dev: https://dev.peanutbutterbox.org
+    prod: https://peanutbutterbox.org
   dynamodb:
     stages:
       - dev
-  tableName: 'users-table-${self:provider.stage}'
+      - prod
+  tableName: 'users-table-${opt:stage}'
   
 provider:
   name: aws
+  stage: ${opt:stage}
   runtime: nodejs12.x
-  stage: dev
   region: us-east-1
   lambdaHashingVersion: 20201221
   iam:
@@ -42,7 +44,7 @@ provider:
   environment:
     API_KEY_SECRET_NAME: 'okta-api-key'
     AUDIENCE: api://default
-    BASE_URL: ${self:custom.baseUrl.${self:provider.stage}}
+    BASE_URL: ${self:custom.baseUrl.${opt:stage}}
     OKTA_DOMAIN: 'https://dev-82492334.okta.com'
     OKTA_JWT_AUDIENCE: 'api://default'
     USERS_TABLE: ${self:custom.tableName}

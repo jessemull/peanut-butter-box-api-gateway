@@ -1,3 +1,4 @@
+import cors from 'cors'
 import get from 'lodash.get'
 import { Router, Request, Response } from 'express'
 import logger from '../../lib/logger'
@@ -76,7 +77,7 @@ export default (app: Router): void => {
       const { email, firstName, lastName } = req.body as User
       const existingUser = await OktaUserService.doesUserExist(email)
       if (existingUser) {
-        return res.status(409).json({ error: 'A user with this e-mail already exists' })
+        return res.status(409).json({ error: 'A user with this e-mail already exists!' })
       }
       const user = await OktaUserService.createUser({ email, firstName, lastName })
       const activationToken = await OktaUserService.getActivationToken(user.id)
@@ -85,7 +86,7 @@ export default (app: Router): void => {
       res.json(user)
     } catch (error) {
       logger.error(error)
-      res.status(500).json({ error: 'Could not create user' })
+      res.status(500).json({ error: 'Sign up failed!' })
     }
   })
 

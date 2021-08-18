@@ -6,6 +6,20 @@ pipeline {
         IMAGE_TAG="peanutbutterbox:${BUILD_ID}"
     }
     stages {
+      stage('Parameters') {
+            steps {
+                script { 
+                    properties([
+                        parameters([
+                            choice(
+                                choices: ['dev', 'prod'], 
+                                name: 'STAGE'
+                            ),
+                        ])
+                    ])
+                }
+            }
+        }
         stage('Build') {
             steps {
                 sh './jenkins/build/build.sh'
@@ -18,7 +32,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh './jenkins/deploy/deploy.sh'
+                sh './jenkins/deploy/deploy.sh $STAGE'
             }
         }
     }
