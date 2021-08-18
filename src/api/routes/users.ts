@@ -1,4 +1,3 @@
-import cors from 'cors'
 import get from 'lodash.get'
 import { Router, Request, Response } from 'express'
 import logger from '../../lib/logger'
