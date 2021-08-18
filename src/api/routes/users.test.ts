@@ -119,7 +119,7 @@ describe('/users', () => {
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(409)
-    expect(response.body).toEqual({ error: 'A user with this e-mail already exists' })
+    expect(response.body).toEqual({ error: 'A user with this e-mail already exists!' })
   })
   it('POST catches errors and returns 500', async () => {
     doesUserExist.mockImplementationOnce(() => {
@@ -137,7 +137,7 @@ describe('/users', () => {
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(500)
-    expect(response.body).toEqual({ error: 'Could not create user' })
+    expect(response.body).toEqual({ error: 'Sign up failed!' })
   })
   it('POST /verify verifies user', async () => {
     const passwordResponse = {
