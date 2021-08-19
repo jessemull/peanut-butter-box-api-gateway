@@ -48,7 +48,7 @@
   "scripts": {
     "deploy": "sls deploy",
     "lint": "eslint . --ext .ts",
-    "start": "nodemon --exec serverless offline --httpPort 8080 --printOutput",
+    "start": "nodemon --exec serverless offline --stage dev --httpPort 8080 --printOutput",
     "test": "jest"
   },
   "author": "jessemull@gmail.com",
