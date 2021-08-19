@@ -1,3 +1,4 @@
+import cors from 'cors'
 import get from 'lodash.get'
 import { Router, Request, Response } from 'express'
 import logger from '../../lib/logger'
@@ -8,6 +9,8 @@ const route: Router = Router()
 
 export default (app: Router): void => {
   app.use('/users', route)
+
+  route.options('*', cors())
 
   route.get('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
