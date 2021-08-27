@@ -1,3 +1,7 @@
 import authorizer from './authorizer'
+import adminauthorizer from './admin-authorizer'
 
-export default authorizer
+export {
+  adminauthorizer,
+  authorizer
+}

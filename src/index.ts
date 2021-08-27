@@ -1,10 +1,10 @@
 import cors from 'cors'
 import Express, { Application } from 'express'
 import serverless from 'serverless-http'
-import authorizer from './api/authorizer'
 import errorMiddleware from './api/middleware/error'
 import loggerRequestMiddleware from './api/middleware/logger'
 import routes from './api/index'
+import { adminauthorizer, authorizer } from './api/authorizer'
 
 const createApp = (): Application => {
   const app = Express()
@@ -26,6 +26,7 @@ const handler = serverless(createApp(), {
 })
 
 export {
+  adminauthorizer,
   authorizer,
   createApp,
   handler

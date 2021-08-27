@@ -10,7 +10,8 @@ custom:
     stages:
       - dev
       - prod
-  tableName: 'users-table-${opt:stage}'
+  productsTableName: 'products-table-${opt:stage}'
+  usersTableName: 'users-table-${opt:stage}'
   
 provider:
   name: aws
@@ -47,13 +48,16 @@ provider:
     BASE_URL: ${self:custom.baseUrl.${opt:stage}}
     OKTA_DOMAIN: 'https://dev-82492334.okta.com'
     OKTA_JWT_AUDIENCE: 'api://default'
-    USERS_TABLE: ${self:custom.tableName}
+    PRODUCTS_TABLE: ${self:custom.productsTableName}
+    USERS_TABLE: ${self:custom.usersTableName}
     
 functions:
   app:
     handler: src/index.handler
     events:
       - http: ANY /
+  adminauthorizer:
+    handler: src/index.adminauthorizer
   authorizer:
     handler: src/index.authorizer
   getHealthcheck:
@@ -79,7 +83,6 @@ functions:
           cors: true
           method: get
           path: /users
-        
   postUser:
     handler: src/index.handler
     events:
@@ -116,6 +119,46 @@ functions:
           cors: true
           method: post
           path: /users/verify
+  getProducts:
+    handler: src/index.handler
+    events:
+      - http:
+          authorizer: authorizer
+          cors: true
+          method: get
+          path: /products
+  createProduct:
+    handler: src/index.handler
+    events:
+      - http:
+          authorizer: adminauthorizer
+          cors: true
+          method: post
+          path: /products
+  updateproduct:
+    handler: src/index.handler
+    events:
+      - http:
+          authorizer: adminauthorizer
+          cors: true
+          method: put
+          path: /products/{productId}
+          request:
+            parameters:
+              paths:
+                productid: true
+  deleteProduct:
+    handler: src/index.handler
+    events:
+      - http:
+          authorizer: adminauthorizer
+          cors: true
+          method: delete
+          path: /products/{productId}
+          request:
+            parameters:
+              paths:
+                productid: true
 
 plugins:
   - serverless-plugin-typescript
@@ -137,4 +180,19 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        TableName: ${self:custom.tableName}
+        TableName: ${self:custom.usersTableName}
+    ProductsDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: productId
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: productId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.productsTableName}
