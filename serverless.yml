@@ -32,6 +32,7 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn"] }
+            - { "Fn::GetAtt": ["ProductsDynamoDBTable", "Arn"] }
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
