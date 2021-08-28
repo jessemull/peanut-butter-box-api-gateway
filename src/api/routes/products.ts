@@ -14,7 +14,7 @@ export default (app: Router): void => {
       res.json(products)
     } catch (error) {
       logger.error(error)
-      res.status(500).json({ error: 'Could not fetch products' })
+      res.status(500).json({ error: 'Could not fetch products!' })
     }
   })
 
