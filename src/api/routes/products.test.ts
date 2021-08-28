@@ -1,16 +1,15 @@
 import bodyParser from 'body-parser'
-import express, { Application, NextFunction, Request } from 'express'
+import express, { Application } from 'express'
 import supertest from 'supertest'
 import { mocked } from 'ts-jest/utils'
 import routes from '..'
 import { ProductsService } from '../../services'
-import { AppUser, User } from '@okta/okta-sdk-nodejs'
 
 jest.mock('../../services')
 
 const { createProduct, deleteProduct, getProduct, getProducts, updateProduct } = mocked(ProductsService)
 
-const getApp = (useAuth = true): Application => {
+const getApp = (): Application => {
   const app = express()
   app.use(bodyParser.json({ strict: false }))
   app.use(routes())
