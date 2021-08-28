@@ -16,7 +16,7 @@ export const createProduct = async ({ description, name, price, productId, title
     ReturnValues: 'ALL_NEW'
   }
   const data = await client.put(params).promise()
-  return data as Product
+  return data as unknown as Product
 }
 
 export const deleteProduct = async (productId: string): Promise<void> => {
@@ -29,15 +29,15 @@ export const deleteProduct = async (productId: string): Promise<void> => {
   await client.delete(params).promise()
 }
 
-export const getProduct = async (productId: string): Promise<Product | null> => {
+export const getProduct = async (email: string): Promise<Product | null> => {
   const params = {
     TableName: PRODUCTS_TABLE,
     Key: {
-      productId
+      email
     }
   }
   const data = await client.get(params).promise()
-  return data as Product
+  return data.Item as Product
 }
 
 export const getProducts = async (): Promise<Array<Product> | null> => {
@@ -65,5 +65,5 @@ export const updateProduct = async ({ description, name, price, productId, title
     ReturnValues: 'ALL_NEW'
   }
   const data = await client.update(params).promise()
-  return data as Product
+  return data as unknown as Product
 }
