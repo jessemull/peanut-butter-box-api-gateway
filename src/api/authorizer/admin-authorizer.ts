@@ -3,6 +3,9 @@ import logger from '../../lib/logger'
 import { AuthResponse, Event } from '../../types'
 
 const oktaJwtVerifier = new OktaJwtVerifier({
+  assertClaims: {
+    'Groups.includes': ['Administrators']
+  },
   issuer: `${process.env.OKTA_DOMAIN as string}/oauth2/default`
 })
 
