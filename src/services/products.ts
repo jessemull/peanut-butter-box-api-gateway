@@ -1,22 +1,28 @@
 import client from '../lib/dynamo'
 import { Product } from '../types'
 
-const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE || 'users-table-dev'
+const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE || 'products-table-dev'
 
 export const createProduct = async ({ description, name, price, productId, title }: Product): Promise<Product> => {
   const params = {
     TableName: PRODUCTS_TABLE,
-    Item: {
-      description,
-      name,
-      price,
-      productId,
-      title
+    Key: {
+      productId
+    },
+    UpdateExpression: 'set description = :d, #nm = :n, price = :p, title = :t',
+    ExpressionAttributeValues: {
+      ':d': description,
+      ':n': name,
+      ':p': price,
+      ':t': title
+    },
+    ExpressionAttributeNames: {
+      '#nm': 'name'
     },
     ReturnValues: 'ALL_NEW'
   }
-  const data = await client.put(params).promise()
-  return data as unknown as Product
+  const data = await client.update(params).promise()
+  return data.Attributes as Product
 }
 
 export const deleteProduct = async (productId: string): Promise<void> => {
@@ -29,11 +35,11 @@ export const deleteProduct = async (productId: string): Promise<void> => {
   await client.delete(params).promise()
 }
 
-export const getProduct = async (email: string): Promise<Product | null> => {
+export const getProduct = async (productId: string): Promise<Product | null> => {
   const params = {
     TableName: PRODUCTS_TABLE,
     Key: {
-      email
+      productId
     }
   }
   const data = await client.get(params).promise()
@@ -54,16 +60,18 @@ export const updateProduct = async ({ description, name, price, productId, title
     Key: {
       productId
     },
-    UpdateExpression: 'set description = :d, name = :n, price = :p, productId = :i, title = :t',
+    UpdateExpression: 'set description = :d, #nm = :n, price = :p, title = :t',
     ExpressionAttributeValues: {
       ':d': description,
       ':n': name,
       ':p': price,
-      ':i': productId,
       ':t': title
+    },
+    ExpressionAttributeNames: {
+      '#nm': 'name'
     },
     ReturnValues: 'ALL_NEW'
   }
   const data = await client.update(params).promise()
-  return data as unknown as Product
+  return data.Attributes as Product
 }
