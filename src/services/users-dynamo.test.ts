@@ -59,6 +59,10 @@ describe('dynamo user service', () => {
   it('should reset user password', async () => {
     const password = 'password'
     const email = 'first.last@domain.com'
+    const user = {
+      email,
+      password
+    }
     const params = {
       TableName: USERS_TABLE,
       Key: {
@@ -68,37 +72,53 @@ describe('dynamo user service', () => {
       ExpressionAttributeValues: {
         ':p': password
       },
-      ReturnValues: 'ALL_OLD'
+      ReturnValues: 'ALL_NEW'
     }
-    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve() } as any))
-    await resetUserPassword(email, password)
+    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve({ Attributes: user }) } as any))
+    const data = await resetUserPassword(email, password)
     expect(update).toHaveBeenLastCalledWith(params)
+    expect(data).toEqual(user)
   })
   it('should update user', async () => {
     const user = {
+      city: 'city',
       email: 'first.last@domain.com',
       firstName: 'first',
-      lastName: 'last'
+      lastName: 'last',
+      primaryPhone: '555-123-5678',
+      state: 'OR',
+      streetAddress: '1234 Fake St',
+      zipCode: '12345'
     }
     const params = {
       TableName: USERS_TABLE,
       Key: {
         email: user.email
       },
-      UpdateExpression: 'set firstName = :f, lastName = :l',
+      UpdateExpression: 'set city = :c, firstName = :f, lastName = :l, primaryPhone = :p, state = :st, streetAddress = :sa, zipCode = :z',
       ExpressionAttributeValues: {
+        ':c': user.city,
         ':f': user.firstName,
-        ':l': user.lastName
+        ':l': user.lastName,
+        ':p': user.primaryPhone,
+        ':st': user.state,
+        ':sa': user.streetAddress,
+        ':z': user.zipCode
       },
-      ReturnValues: 'ALL_OLD'
+      ReturnValues: 'ALL_NEW'
     }
-    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve() } as any))
-    await updateUser(user)
+    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve({ Attributes: user }) } as any))
+    const data = await updateUser(user)
     expect(update).toHaveBeenLastCalledWith(params)
+    expect(data).toEqual(user)
   })
   it('should verify user', async () => {
     const email = 'first.last@domain.com'
     const password = 'password'
+    const user = {
+      email,
+      password
+    }
     const params = {
       TableName: USERS_TABLE,
       Key: {
@@ -114,8 +134,9 @@ describe('dynamo user service', () => {
       },
       ReturnValues: 'ALL_OLD'
     }
-    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve() } as any))
-    await verifyUser(email, password)
+    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve({ Attributes: user }) } as any))
+    const data = await verifyUser(email, password)
     expect(update).toHaveBeenCalledWith(params)
+    expect(data).toEqual(user)
   })
 })

@@ -77,10 +77,17 @@ describe('okta user service', () => {
       firstName: 'first',
       lastName: 'last'
     }
-    const mockedResponse = {
+    const fullInput = {
+      city: 'city',
       email: 'first.last@domain.com',
       firstName: 'first',
       lastName: 'last',
+      primaryPhone: '555-123-5678',
+      state: 'OR',
+      streetAddress: '1234 Fake St',
+      zipCode: '12345'
+    }
+    const mockedResponse = {
       profile: {},
       update: jest.fn()
     }
@@ -91,9 +98,23 @@ describe('okta user service', () => {
         lastName: 'last'
       }
     }
-    getClient.mockImplementationOnce(() => Promise.resolve({ getUser: jest.fn().mockResolvedValueOnce(mockedResponse) }) as any)
+    const expectedFull = {
+      ...mockedResponse,
+      profile: {
+        city: 'city',
+        firstName: 'first',
+        lastName: 'last',
+        primaryPhone: '555-123-5678',
+        state: 'OR',
+        streetAddress: '1234 Fake St',
+        zipCode: '12345'
+      }
+    }
+    getClient.mockImplementation(() => Promise.resolve({ getUser: jest.fn().mockResolvedValueOnce(mockedResponse) }) as any)
     const response = await updateUser(input)
     expect(response).toEqual(expected)
-    expect(mockedResponse.update).toHaveBeenCalledTimes(1)
+    const responseFull = await updateUser(fullInput)
+    expect(responseFull).toEqual(expectedFull)
+    expect(mockedResponse.update).toHaveBeenCalledTimes(2)
   })
 })

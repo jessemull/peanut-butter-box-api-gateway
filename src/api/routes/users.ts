@@ -96,9 +96,9 @@ export default (app: Router): void => {
         logger.error('Invalid user JWT')
         return res.status(401).json({ error: 'Invalid user JWT' })
       }
-      const { firstName, lastName } = req.body as User
-      const user = await OktaUserService.updateUser({ email, firstName, lastName })
-      await DynamoDBUserService.updateUser({ email, firstName, lastName })
+      const { city, firstName, lastName, primaryPhone, state, streetAddress, zipCode } = req.body as User
+      const user = await OktaUserService.updateUser({ city, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode })
+      await DynamoDBUserService.updateUser({ city, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode })
       res.json(user)
     } catch (error) {
       logger.error(error)

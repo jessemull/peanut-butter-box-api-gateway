@@ -41,7 +41,7 @@ export const getUser = async (email: string): Promise<User | null> => {
   return data.Item as User
 }
 
-export const resetUserPassword = async (email: string, password: string): Promise<void> => {
+export const resetUserPassword = async (email: string, password: string): Promise<User> => {
   const hashedPassword = await hashPassword(password)
 
   const params = {
@@ -53,29 +53,36 @@ export const resetUserPassword = async (email: string, password: string): Promis
     ExpressionAttributeValues: {
       ':p': hashedPassword
     },
-    ReturnValues: 'ALL_OLD'
+    ReturnValues: 'ALL_NEW'
   }
 
-  await client.update(params).promise()
+  const data = await client.update(params).promise()
+  return data.Attributes as User
 }
 
-export const updateUser = async ({ email, firstName, lastName }: UpdateUserInput): Promise<void> => {
+export const updateUser = async ({ city, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode }: UpdateUserInput): Promise<User> => {
   const params = {
     TableName: USERS_TABLE,
     Key: {
       email
     },
-    UpdateExpression: 'set firstName = :f, lastName = :l',
+    UpdateExpression: 'set city = :c, firstName = :f, lastName = :l, primaryPhone = :p, state = :st, streetAddress = :sa, zipCode = :z',
     ExpressionAttributeValues: {
+      ':c': city,
       ':f': firstName,
-      ':l': lastName
+      ':l': lastName,
+      ':p': primaryPhone,
+      ':st': state,
+      ':sa': streetAddress,
+      ':z': zipCode
     },
-    ReturnValues: 'ALL_OLD'
+    ReturnValues: 'ALL_NEW'
   }
-  await client.update(params).promise()
+  const data = await client.update(params).promise()
+  return data.Attributes as User
 }
 
-export const verifyUser = async (email: string, password: string): Promise<void> => {
+export const verifyUser = async (email: string, password: string): Promise<User> => {
   const hashedPassword = await hashPassword(password)
   const params = {
     TableName: USERS_TABLE,
@@ -92,5 +99,6 @@ export const verifyUser = async (email: string, password: string): Promise<void>
     },
     ReturnValues: 'ALL_OLD'
   }
-  await client.update(params).promise()
+  const data = await client.update(params).promise()
+  return data.Attributes as User
 }
