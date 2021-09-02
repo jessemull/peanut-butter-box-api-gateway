@@ -18,8 +18,8 @@ export default (app: Router): void => {
       }
       const user = await DynamoDBUserService.getUser(email)
       if (user) {
-        const { id, email, firstName, lastName, login } = user
-        res.json({ id, email, firstName, lastName, login })
+        const { city, id, email, firstName, lastName, login, primaryPhone, state, streetAddress, zipCode } = user
+        res.json({ city, id, email, firstName, lastName, login, primaryPhone, state, streetAddress, zipCode })
       } else {
         res.status(404).json({ error: 'User not found' })
       }

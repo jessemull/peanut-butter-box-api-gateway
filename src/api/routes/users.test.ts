@@ -36,11 +36,16 @@ describe('/users', () => {
   })
   it('GET returns user information', async () => {
     const user = {
+      city: 'city',
       id: 'id',
       email: 'first.last@domain.com',
       firstName: 'firstName',
       lastName: 'lastName',
-      login: 'first.last@domain.com'
+      login: 'first.last@domain.com',
+      primaryPhone: '555-555-5555',
+      state: 'OR',
+      streetAddress: '1234 Fake St',
+      zipCode: '12345'
     }
     getUser.mockResolvedValueOnce(user)
     const response = await supertest(app)
