@@ -95,7 +95,7 @@ describe('dynamo user service', () => {
       Key: {
         email: user.email
       },
-      UpdateExpression: 'set city = :c, firstName = :f, lastName = :l, primaryPhone = :p, state = :st, streetAddress = :sa, zipCode = :z',
+      UpdateExpression: 'set city = :c, firstName = :f, lastName = :l, primaryPhone = :p, #st = :st, streetAddress = :sa, zipCode = :z',
       ExpressionAttributeValues: {
         ':c': user.city,
         ':f': user.firstName,
@@ -104,6 +104,9 @@ describe('dynamo user service', () => {
         ':st': user.state,
         ':sa': user.streetAddress,
         ':z': user.zipCode
+      },
+      ExpressionAttributeNames: {
+        '#st': 'state'
       },
       ReturnValues: 'ALL_NEW'
     }

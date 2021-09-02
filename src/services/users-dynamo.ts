@@ -66,7 +66,7 @@ export const updateUser = async ({ city, email, firstName, lastName, primaryPhon
     Key: {
       email
     },
-    UpdateExpression: 'set city = :c, firstName = :f, lastName = :l, primaryPhone = :p, state = :st, streetAddress = :sa, zipCode = :z',
+    UpdateExpression: 'set city = :c, firstName = :f, lastName = :l, primaryPhone = :p, #st = :st, streetAddress = :sa, zipCode = :z',
     ExpressionAttributeValues: {
       ':c': city,
       ':f': firstName,
@@ -75,6 +75,9 @@ export const updateUser = async ({ city, email, firstName, lastName, primaryPhon
       ':st': state,
       ':sa': streetAddress,
       ':z': zipCode
+    },
+    ExpressionAttributeNames: {
+      '#st': 'state'
     },
     ReturnValues: 'ALL_NEW'
   }
