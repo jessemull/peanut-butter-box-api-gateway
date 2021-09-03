@@ -85,6 +85,23 @@ export const updateUser = async ({ city, email, firstName, lastName, primaryPhon
   return data.Attributes as User
 }
 
+export const changePassword = async (email: string, password: string): Promise<User> => {
+  const hashedPassword = await hashPassword(password)
+  const params = {
+    TableName: USERS_TABLE,
+    Key: {
+      email
+    },
+    UpdateExpression: 'set password = :p',
+    ExpressionAttributeValues: {
+      ':p': hashedPassword
+    },
+    ReturnValues: 'ALL_NEW'
+  }
+  const data = await client.update(params).promise()
+  return data.Attributes as User
+}
+
 export const verifyUser = async (email: string, password: string): Promise<User> => {
   const hashedPassword = await hashPassword(password)
   const params = {
@@ -100,7 +117,7 @@ export const verifyUser = async (email: string, password: string): Promise<User>
     ExpressionAttributeNames: {
       '#st': 'status'
     },
-    ReturnValues: 'ALL_OLD'
+    ReturnValues: 'ALL_NEW'
   }
   const data = await client.update(params).promise()
   return data.Attributes as User

@@ -12,6 +12,12 @@ export interface User {
   zipCode?: string;
 }
 
+export interface ChangePasswordInput {
+  id: string;
+  newPassword: string;
+  oldPassword: string;
+}
+
 export interface CreateUserInput {
   id: string;
   email: string;

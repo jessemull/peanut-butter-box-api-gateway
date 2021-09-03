@@ -1,7 +1,7 @@
 import get from 'lodash.get'
 import { Router, Request, Response } from 'express'
 import logger from '../../lib/logger'
-import { Activation, Reset, User } from '../../types'
+import { Activation, ChangePasswordInput, Reset, User } from '../../types'
 import { DynamoDBUserService, EmailService, OktaUserService } from '../../services'
 
 const route: Router = Router()
@@ -26,6 +26,23 @@ export default (app: Router): void => {
     } catch (error) {
       logger.error(error)
       res.status(500).json({ error: 'Could not fetch user' })
+    }
+  })
+
+  route.post('/change', async (req: Request, res: Response): Promise<void | Response> => {
+    try {
+      const email = get(req, 'event.requestContext.authorizer.email', '') as string
+      if (!email) {
+        logger.error('Invalid user JWT')
+        return res.status(401).json({ error: 'Invalid user JWT' })
+      }
+      const { id, newPassword, oldPassword } = req.body as ChangePasswordInput
+      await OktaUserService.changePassword({ id, newPassword, oldPassword })
+      await DynamoDBUserService.changePassword(email, newPassword)
+      res.status(200).send()
+    } catch (error) {
+      logger.error(error)
+      res.status(500).json({ error: 'Failed to change password!' })
     }
   })
 

@@ -1,6 +1,6 @@
 import { mocked } from 'ts-jest/utils'
 import getOktaClient from '../lib/okta'
-import { createUser, deleteUser, doesUserExist, getActivationToken, getResetToken, getStateToken, resetPassword, updateUser } from './users-okta'
+import { changePassword, createUser, deleteUser, doesUserExist, getActivationToken, getResetToken, getStateToken, resetPassword, updateUser } from './users-okta'
 
 jest.mock('../lib/okta')
 
@@ -116,5 +116,20 @@ describe('okta user service', () => {
     const responseFull = await updateUser(fullInput)
     expect(responseFull).toEqual(expectedFull)
     expect(mockedResponse.update).toHaveBeenCalledTimes(2)
+  })
+  it('should change password', async () => {
+    const user = {
+      id: 'first.last@domain.com',
+      firstName: 'first',
+      lastName: 'last'
+    }
+    const changeRequest = {
+      id: 'id',
+      newPassword: 'newPassword',
+      oldPassword: 'oldPassword'
+    }
+    getClient.mockImplementationOnce(() => Promise.resolve({ http: { http: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(user) }) } }) as any)
+    const response = await changePassword(changeRequest)
+    expect(response).toEqual(user)
   })
 })

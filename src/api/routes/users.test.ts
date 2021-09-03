@@ -8,8 +8,8 @@ import { AppUser, User } from '@okta/okta-sdk-nodejs'
 
 jest.mock('../../services')
 
-const { createUser: createDynamoUser, deleteUser: deleteDynamoUser, getUser, resetUserPassword, updateUser: updateDynamoUser, verifyUser } = mocked(DynamoDBUserService)
-const { deleteUser, doesUserExist, createUser, getActivationToken, getResetToken, getStateToken, resetPassword, updateUser } = mocked(OktaUserService)
+const { changePassword: changePasswordDynamoUser, createUser: createDynamoUser, deleteUser: deleteDynamoUser, getUser, resetUserPassword, updateUser: updateDynamoUser, verifyUser } = mocked(DynamoDBUserService)
+const { changePassword, deleteUser, doesUserExist, createUser, getActivationToken, getResetToken, getStateToken, resetPassword, updateUser } = mocked(OktaUserService)
 const { sendActivation, sendPasswordReset } = mocked(EmailService)
 
 const sub = 'first.last@domain.com'
@@ -343,6 +343,52 @@ describe('/users', () => {
   it('DELETE returns 401 for invalid JWT', async () => {
     const response = await supertest(getApp(false))
       .delete('/users')
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(401)
+    expect(response.body).toEqual({ error: 'Invalid user JWT' })
+  })
+  it('POST /change updates password', async () => {
+    const changeRequest = {
+      id: 'id',
+      newPassword: 'newPassword',
+      oldPassword: 'oldPassword'
+    }
+    await supertest(app)
+      .post('/users/change')
+      .send(changeRequest)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(200)
+    expect(changePassword).toHaveBeenCalledWith(changeRequest)
+    expect(changePasswordDynamoUser).toHaveBeenCalledWith(sub, changeRequest.newPassword)
+  })
+  it('POST /change catches errors and returns 500', async () => {
+    const changeRequest = {
+      id: 'id',
+      newPassword: 'newPassword',
+      oldPassword: 'oldPassword'
+    }
+    changePassword.mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const response = await supertest(app)
+      .post('/users/change')
+      .send(changeRequest)
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer token')
+      .expect(500)
+    expect(response.body).toEqual({ error: 'Failed to change password!' })
+  })
+  it('POST /change returns 401 for invalid JWT', async () => {
+    const changeRequest = {
+      id: 'id',
+      newPassword: 'newPassword',
+      oldPassword: 'oldPassword'
+    }
+    const response = await supertest(getApp(false))
+      .post('/users/change')
+      .send(changeRequest)
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(401)

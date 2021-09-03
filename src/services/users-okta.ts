@@ -1,8 +1,27 @@
 import { AppUser, User } from '@okta/okta-sdk-nodejs'
 import getOktaClient from '../lib/okta'
-import { AuthnResponse, OktaUserInput, PasswordResetResponse } from '../types'
+import { AuthnResponse, ChangePasswordInput, OktaUserInput, PasswordResetResponse } from '../types'
 
 const oktaURL = process.env.OKTA_DOMAIN as string
+
+export const changePassword = async ({ id, newPassword, oldPassword }: ChangePasswordInput): Promise<AppUser> => {
+  const client = await getOktaClient()
+  const url = `${oktaURL}/api/v1/users/${id}/credentials/change_password`
+  const request = {
+    method: 'post',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      newPassword,
+      oldPassword
+    })
+  }
+  const data = await client.http.http(url, request)
+  const response = await data.json() as AppUser
+  return response
+}
 
 export const createUser = async ({ email, firstName, lastName }: OktaUserInput): Promise<AppUser> => {
   const client = await getOktaClient()

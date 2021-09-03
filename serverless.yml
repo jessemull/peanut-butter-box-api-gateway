@@ -68,6 +68,14 @@ functions:
           cors: true
           path: /healthcheck
           method: get
+  changePassword:
+    handler: src/index.handler
+    events:
+      - http: 
+          authorizer: authorizer
+          cors: true
+          method: post
+          path: /users/change
   deleteUser:
     handler: src/index.handler
     events:

@@ -1,6 +1,6 @@
 import { mocked } from 'ts-jest/utils'
 import client from '../lib/dynamo'
-import { createUser, deleteUser, getUser, resetUserPassword, updateUser, verifyUser } from './users-dynamo'
+import { changePassword, createUser, deleteUser, getUser, resetUserPassword, updateUser, verifyUser } from './users-dynamo'
 
 const USERS_TABLE = process.env.USERS_TABLE || 'users-table-dev'
 
@@ -135,10 +135,33 @@ describe('dynamo user service', () => {
       ExpressionAttributeNames: {
         '#st': 'status'
       },
-      ReturnValues: 'ALL_OLD'
+      ReturnValues: 'ALL_NEW'
     }
     update.mockImplementationOnce(() => ({ promise: () => Promise.resolve({ Attributes: user }) } as any))
     const data = await verifyUser(email, password)
+    expect(update).toHaveBeenCalledWith(params)
+    expect(data).toEqual(user)
+  })
+  it('should change password', async () => {
+    const email = 'first.last@domain.com'
+    const newPassword = 'newPassword'
+    const user = {
+      email,
+      newPassword
+    }
+    const params = {
+      TableName: USERS_TABLE,
+      Key: {
+        email
+      },
+      UpdateExpression: 'set password = :p',
+      ExpressionAttributeValues: {
+        ':p': newPassword
+      },
+      ReturnValues: 'ALL_NEW'
+    }
+    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve({ Attributes: user }) } as any))
+    const data = await changePassword(email, newPassword)
     expect(update).toHaveBeenCalledWith(params)
     expect(data).toEqual(user)
   })
