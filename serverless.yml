@@ -103,7 +103,6 @@ functions:
     handler: src/index.handler
     events:
       - http:
-          authorizer: authorizer
           cors: true
           method: put
           path: /users

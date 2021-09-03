@@ -119,7 +119,7 @@ export default (app: Router): void => {
       res.json(user)
     } catch (error) {
       logger.error(error)
-      res.status(500).json({ error: 'Could not update user' })
+      res.status(500).json({ error }) // eslint-disable-line
     }
   })
 
