@@ -38,6 +38,7 @@ provider:
             - secretsmanager:GetSecretValue
           Resource:
             - arn:aws:secretsmanager:us-east-1:771265364914:secret:okta-api-key-5kfnQA
+            - arn:aws:secretsmanager:us-east-1:771265364914:secret:usps-id-L0qen7
         - Effect: Allow
           Action:
             - ses:SendEmail
@@ -51,6 +52,7 @@ provider:
     OKTA_JWT_AUDIENCE: 'api://default'
     PRODUCTS_TABLE: ${self:custom.productsTableName}
     USERS_TABLE: ${self:custom.usersTableName}
+    USPS_ID_SECRET_NAME: 'usps-id'
     
 functions:
   app:
@@ -103,6 +105,7 @@ functions:
     handler: src/index.handler
     events:
       - http:
+          authorizer: authorizer
           cors: true
           method: put
           path: /users
@@ -120,6 +123,13 @@ functions:
           cors: true
           method: post
           path: /users/reset
+  verifyAddress:
+    handler: src/index.handler
+    events:
+      - http:
+          cors: true
+          method: post
+          path: /usps/verify
   verifyUser:
     handler: src/index.handler
     events:
@@ -203,3 +213,12 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.productsTableName}
+    GatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId: 
+          Ref: 'ApiGatewayRestApi'
