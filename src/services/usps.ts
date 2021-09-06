@@ -3,9 +3,9 @@ import get from 'lodash.get'
 import * as js2xml from 'xml-js'
 import * as xml2js from 'fast-xml-parser'
 import { getSecret } from '../lib/secrets-manager'
-import { Address, Addressvalidation } from '../types'
+import { Address, AddressValidationResponse, ValidatedAddress } from '../types'
 
-export const verifyAddress = async ({ Address1, Address2, City, State, Zip5 }: Address): Promise<Address> => {
+export const verifyAddress = async ({ Address1, Address2, City, State, Zip5 }: Address): Promise<ValidatedAddress> => {
   const USPS_ID = await getSecret(process.env.USPS_ID_SECRET_NAME as string)
   const json = {
     AddressValidateRequest: {
@@ -30,6 +30,6 @@ export const verifyAddress = async ({ Address1, Address2, City, State, Zip5 }: A
   const scrubbedXML = xml.replace(/\\"/gi, '')
   const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify&XML=${scrubbedXML}`
   const response = await axios.get(url)
-  const verifiedAddress = xml2js.parse(response.data) as Addressvalidation
-  return get(verifiedAddress, 'AddressValidateResponse.Address', {}) as Address
+  const verifiedAddress = xml2js.parse(response.data) as AddressValidationResponse
+  return get(verifiedAddress, 'AddressValidateResponse.Address', {}) as ValidatedAddress
 }

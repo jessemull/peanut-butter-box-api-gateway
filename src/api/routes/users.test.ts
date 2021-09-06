@@ -305,7 +305,7 @@ describe('/users', () => {
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer token')
       .expect(500)
-    expect(response.body).toEqual({ error: 'Could not update user' })
+    expect(response.body).toEqual({ error: 'Could not update user!' })
   })
   it('PUT returns 401 for invalid JWT', async () => {
     const user = {
