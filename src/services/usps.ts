@@ -5,6 +5,8 @@ import * as xml2js from 'fast-xml-parser'
 import { getSecret } from '../lib/secrets-manager'
 import { Address, AddressValidationResponse, ValidatedAddress } from '../types'
 
+const uspsURL = process.env.USPS_URL as string
+
 export const verifyAddress = async ({ Address1, Address2, City, State, Zip5 }: Address): Promise<ValidatedAddress> => {
   const USPS_ID = await getSecret(process.env.USPS_ID_SECRET_NAME as string)
   const json = {
@@ -28,7 +30,7 @@ export const verifyAddress = async ({ Address1, Address2, City, State, Zip5 }: A
   }
   const xml = js2xml.js2xml(json, { compact: true })
   const scrubbedXML = xml.replace(/\\"/gi, '')
-  const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify&XML=${scrubbedXML}`
+  const url = `${uspsURL}/ShippingAPI.dll?API=Verify&XML=${scrubbedXML}`
   const response = await axios.get(url)
   const verifiedAddress = xml2js.parse(response.data) as AddressValidationResponse
   return get(verifiedAddress, 'AddressValidateResponse.Address', {}) as ValidatedAddress

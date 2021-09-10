@@ -48,11 +48,14 @@ provider:
     API_KEY_SECRET_NAME: 'okta-api-key'
     AUDIENCE: api://default
     BASE_URL: ${self:custom.baseUrl.${opt:stage}}
+    GOOGLE_API_KEY_SECRET_NAME: 'google-places-api-key'
+    GOOGLE_API_URL: 'https://maps.googleapis.com'
     OKTA_DOMAIN: 'https://dev-82492334.okta.com'
     OKTA_JWT_AUDIENCE: 'api://default'
     PRODUCTS_TABLE: ${self:custom.productsTableName}
     USERS_TABLE: ${self:custom.usersTableName}
     USPS_ID_SECRET_NAME: 'usps-id'
+    USPS_URL: 'https://secure.shippingapis.com'
     
 functions:
   app:
@@ -63,6 +66,34 @@ functions:
     handler: src/index.adminauthorizer
   authorizer:
     handler: src/index.authorizer
+  autocompleteAddress:
+    handler: src/index.handler
+    events:
+      - http:
+          cors: true
+          path: /places/autocomplete/address
+          method: get
+  autocompleteCity:
+    handler: src/index.handler
+    events:
+      - http:
+          cors: true
+          path: /places/autocomplete/city
+          method: get
+  autocompleteState:
+    handler: src/index.handler
+    events:
+      - http:
+          cors: true
+          path: /places/autocomplete/state
+          method: get
+  getDetails:
+    handler: src/index.handler
+    events:
+      - http:
+          cors: true
+          path: /places/details
+          method: get
   getHealthcheck:
     handler: src/index.handler
     events:

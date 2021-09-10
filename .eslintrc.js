@@ -35,6 +35,7 @@ module.exports = {
       }
     ],
     '@typescript-eslint/unbound-method': 0,
-    '@typescript-eslint/prefer-regexp-exec': 0
+    '@typescript-eslint/prefer-regexp-exec': 0,
+    'camelcase': 0
   }
 }
