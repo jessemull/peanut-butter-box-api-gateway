@@ -6,8 +6,6 @@ jest.mock('axios')
 
 const { get } = mocked(axios, true)
 
-process.env.USPS_ID_SECRET_NAME = 'USPS_ID'
-
 describe('usps service', () => {
   it('should validate and scrub address', async () => {
     const address = {
