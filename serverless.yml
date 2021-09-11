@@ -39,6 +39,7 @@ provider:
           Resource:
             - arn:aws:secretsmanager:us-east-1:771265364914:secret:okta-api-key-5kfnQA
             - arn:aws:secretsmanager:us-east-1:771265364914:secret:usps-id-L0qen7
+            - arn:aws:secretsmanager:us-east-1:771265364914:secret:google-places-api-key-01QuNC
         - Effect: Allow
           Action:
             - ses:SendEmail
