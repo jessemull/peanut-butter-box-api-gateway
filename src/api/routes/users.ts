@@ -18,8 +18,8 @@ export default (app: Router): void => {
       }
       const user = await DynamoDBUserService.getUser(email)
       if (user) {
-        const { city, id, email, firstName, lastName, login, primaryPhone, state, streetAddress, zipCode } = user
-        res.json({ city, id, email, firstName, lastName, login, primaryPhone, state, streetAddress, zipCode })
+        const { city, countryCode, id, email, firstName, lastName, login, primaryPhone, state, streetAddress, zipCode } = user
+        res.json({ city, countryCode, id, email, firstName, lastName, login, primaryPhone, state, streetAddress, zipCode })
       } else {
         res.status(404).json({ error: 'User not found' })
       }
@@ -113,9 +113,9 @@ export default (app: Router): void => {
         logger.error('Invalid user JWT')
         return res.status(401).json({ error: 'Invalid user JWT' })
       }
-      const { city, firstName, lastName, primaryPhone, state, streetAddress, zipCode } = req.body as User
-      const user = await OktaUserService.updateUser({ city, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode })
-      await DynamoDBUserService.updateUser({ city, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode })
+      const { city, countryCode, firstName, lastName, primaryPhone, state, streetAddress, zipCode } = req.body as User
+      const user = await OktaUserService.updateUser({ city, countryCode, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode })
+      await DynamoDBUserService.updateUser({ city, countryCode, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode })
       res.json(user)
     } catch (error) {
       logger.error(error)

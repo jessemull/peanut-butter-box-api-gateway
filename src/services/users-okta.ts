@@ -140,13 +140,16 @@ export const resetPassword = async (newPassword: string, stateToken: string): Pr
   return { email, response }
 }
 
-export const updateUser = async ({ city, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode }: OktaUserInput): Promise<User> => {
+export const updateUser = async ({ city, countryCode, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode }: OktaUserInput): Promise<User> => {
   const client = await getOktaClient()
   const user = await client.getUser(email)
   user.profile.firstName = firstName
   user.profile.lastName = lastName
   if (city) {
     user.profile.city = city
+  }
+  if (countryCode) {
+    user.profile.countryCode = countryCode
   }
   if (primaryPhone) {
     user.profile.primaryPhone = primaryPhone

@@ -60,15 +60,16 @@ export const resetUserPassword = async (email: string, password: string): Promis
   return data.Attributes as User
 }
 
-export const updateUser = async ({ city, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode }: UpdateUserInput): Promise<User> => {
+export const updateUser = async ({ city, countryCode, email, firstName, lastName, primaryPhone, state, streetAddress, zipCode }: UpdateUserInput): Promise<User> => {
   const params = {
     TableName: USERS_TABLE,
     Key: {
       email
     },
-    UpdateExpression: 'set city = :c, firstName = :f, lastName = :l, primaryPhone = :p, #st = :st, streetAddress = :sa, zipCode = :z',
+    UpdateExpression: 'set city = :c, countryCode = :cc, firstName = :f, lastName = :l, primaryPhone = :p, #st = :st, streetAddress = :sa, zipCode = :z',
     ExpressionAttributeValues: {
       ':c': city,
+      ':cc': countryCode,
       ':f': firstName,
       ':l': lastName,
       ':p': primaryPhone,

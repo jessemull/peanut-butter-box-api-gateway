@@ -37,6 +37,7 @@ describe('/users', () => {
   it('GET returns user information', async () => {
     const user = {
       city: 'city',
+      countryCode: 'US',
       id: 'id',
       email: 'first.last@domain.com',
       firstName: 'firstName',

@@ -82,6 +82,7 @@ describe('dynamo user service', () => {
   it('should update user', async () => {
     const user = {
       city: 'city',
+      countryCode: 'US',
       email: 'first.last@domain.com',
       firstName: 'first',
       lastName: 'last',
@@ -95,9 +96,10 @@ describe('dynamo user service', () => {
       Key: {
         email: user.email
       },
-      UpdateExpression: 'set city = :c, firstName = :f, lastName = :l, primaryPhone = :p, #st = :st, streetAddress = :sa, zipCode = :z',
+      UpdateExpression: 'set city = :c, countryCode = :cc, firstName = :f, lastName = :l, primaryPhone = :p, #st = :st, streetAddress = :sa, zipCode = :z',
       ExpressionAttributeValues: {
         ':c': user.city,
+        ':cc': user.countryCode,
         ':f': user.firstName,
         ':l': user.lastName,
         ':p': user.primaryPhone,

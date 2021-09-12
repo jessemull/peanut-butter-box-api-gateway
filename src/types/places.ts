@@ -35,14 +35,18 @@ export interface AddressSuggestion {
 export interface CitySuggestion {
   label: string;
   value: {
+    countryCode: string;
     city: string;
-    state: string;
+    region: string;
   }
 }
 
 export interface StateSuggestion {
   label: string;
-  value: string;
+  value: {
+    countryCode: string;
+    region: string;
+  };
 }
 
 export interface GetDetailsInput {
@@ -51,6 +55,7 @@ export interface GetDetailsInput {
 
 export interface Details {
   city?: string;
+  countryCode?: string;
   number?: string;
   state?: string;
   street?: string;

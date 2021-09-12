@@ -79,6 +79,7 @@ describe('okta user service', () => {
     }
     const fullInput = {
       city: 'city',
+      countryCode: 'US',
       email: 'first.last@domain.com',
       firstName: 'first',
       lastName: 'last',
@@ -102,6 +103,7 @@ describe('okta user service', () => {
       ...mockedResponse,
       profile: {
         city: 'city',
+        countryCode: 'US',
         firstName: 'first',
         lastName: 'last',
         primaryPhone: '555-123-5678',

@@ -51,7 +51,8 @@ describe('/places', () => {
       label: 'city, state',
       value: {
         city: 'city',
-        state: 'state'
+        countryCode: 'countryCode',
+        region: 'region'
       }
     }]
     getCities.mockResolvedValueOnce(cities)
@@ -77,7 +78,10 @@ describe('/places', () => {
   it('GET /autocomplete/state autocompletes a state', async () => {
     const states = [{
       label: 'state',
-      value: 'state'
+      value: {
+        countryCode: 'countryCode',
+        region: 'region'
+      }
     }]
     getStates.mockReturnValue(states)
     const response = await supertest(app)
@@ -102,6 +106,7 @@ describe('/places', () => {
   it('GET /details should return place details', async () => {
     const details = {
       city: 'city',
+      countryCode: 'countryCode',
       number: 'number',
       state: 'state',
       street: 'street',

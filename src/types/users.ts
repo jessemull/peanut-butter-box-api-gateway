@@ -1,5 +1,6 @@
 export interface User {
   city?: string;
+  countryCode?: string;
   id: string;
   email: string;
   firstName: string;
@@ -27,6 +28,7 @@ export interface CreateUserInput {
 
 export interface UpdateUserInput {
   city?: string;
+  countryCode?: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -38,6 +40,7 @@ export interface UpdateUserInput {
 
 export interface OktaUserInput {
   city?: string;
+  countryCode?: string;
   email: string;
   firstName: string;
   lastName: string;

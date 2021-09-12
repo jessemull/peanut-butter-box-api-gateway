@@ -7,20 +7,23 @@ const googleURL = process.env.GOOGLE_API_URL as string
 
 export const getAddresses = async ({ input }: GetAddressesInput): Promise<Array<AddressSuggestion>> => {
   const GOOGLE_API_KEY = await getSecret(process.env.GOOGLE_API_KEY_SECRET_NAME as string)
-  const response = await axios.get(`${googleURL}/maps/api/place/autocomplete/json?input=${input}&types=address&key=${GOOGLE_API_KEY as string}`) as unknown as AutocompleteResponse
+  const response = await axios.get(`${googleURL}/maps/api/place/autocomplete/json?input=${input}&types=address&components=country:ca|country:us&key=${GOOGLE_API_KEY as string}`) as unknown as AutocompleteResponse
   return response.data.predictions.map(({ description, place_id }: Prediction): AddressSuggestion => ({ label: description, value: place_id }))
 }
 
 export const getCities = async ({ input }: GetCitiesInput): Promise<Array<CitySuggestion>> => {
   const GOOGLE_API_KEY = await getSecret(process.env.GOOGLE_API_KEY_SECRET_NAME as string)
-  const response = await axios.get(`${googleURL}/maps/api/place/autocomplete/json?input=${input}&types=(cities)&key=${GOOGLE_API_KEY as string}`) as unknown as AutocompleteResponse
-  return response.data.predictions.map(({ description, terms }: Prediction): CitySuggestion => ({ label: description, value: { city: terms[0].value, state: terms[1].value } }))
+  const response = await axios.get(`${googleURL}/maps/api/place/autocomplete/json?input=${input}&types=(cities)&components=country:ca|country:us&key=${GOOGLE_API_KEY as string}`) as unknown as AutocompleteResponse
+  return response.data.predictions.map(({ description, terms }: Prediction): CitySuggestion => ({ label: description, value: { city: terms[0].value, countryCode: getCountryCode(terms[2].value), region: terms[1].value } }))
 }
 
 export const makeDetails = (address_components: Array<AddressComponent>): Details => {
   const details: Details = {}
   for (let i = 0; i < address_components.length; i++) {
     switch (address_components[i].types[0]) {
+      case 'country':
+        details.countryCode = address_components[i].short_name
+        break
       case 'street_number':
         details.number = address_components[i].long_name
         break
@@ -50,4 +53,15 @@ export const getDetails = async ({ placeId }: GetDetailsInput): Promise<Details>
   return details
 }
 
-export const getStates = ({ input }: GetStatesInput): Array<StateSuggestion> => states.filter(state => state.label.startsWith(input))
+export const getCountryCode = (countryCode: string): string => {
+  switch (countryCode) {
+    case 'Canada':
+      return 'CA'
+    case 'USA':
+      return 'US'
+    default:
+      return ''
+  }
+}
+
+export const getStates = ({ input }: GetStatesInput): Array<StateSuggestion> => states.filter(state => state.label.startsWith(input.toUpperCase()))
