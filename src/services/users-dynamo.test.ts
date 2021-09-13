@@ -87,6 +87,7 @@ describe('dynamo user service', () => {
       firstName: 'first',
       lastName: 'last',
       primaryPhone: '555-123-5678',
+      secondaryEmail: 'first.last@mydomain.com',
       state: 'OR',
       streetAddress: '1234 Fake St',
       zipCode: '12345'
@@ -109,6 +110,32 @@ describe('dynamo user service', () => {
       },
       ExpressionAttributeNames: {
         '#st': 'state'
+      },
+      ReturnValues: 'ALL_NEW'
+    }
+    update.mockImplementationOnce(() => ({ promise: () => Promise.resolve({ Attributes: user }) } as any))
+    const data = await updateUser(user)
+    expect(update).toHaveBeenLastCalledWith(params)
+    expect(data).toEqual(user)
+  })
+  it('should only update defined user fields', async () => {
+    const user = {
+      city: 'city',
+      email: 'first.last@domain.com',
+      firstName: 'first',
+      lastName: 'last',
+      state: undefined
+    }
+    const params = {
+      TableName: USERS_TABLE,
+      Key: {
+        email: user.email
+      },
+      UpdateExpression: 'set city = :c, firstName = :f, lastName = :l',
+      ExpressionAttributeValues: {
+        ':c': user.city,
+        ':f': user.firstName,
+        ':l': user.lastName
       },
       ReturnValues: 'ALL_NEW'
     }
