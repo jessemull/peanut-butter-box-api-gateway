@@ -7,20 +7,24 @@ const oktaJwtVerifier = new OktaJwtVerifier({
 })
 
 const authorizer = (event: Event, context, callback: (error: any, response?: any) => void) => { // eslint-disable-line
-  logger.info(event.toString())
-  const bearerToken = event.authorizationToken.split(' ')
-  if (bearerToken.length > 2 || bearerToken[0] !== 'Bearer') {
-    logger.error(new Error('Invalid JWT'))
-    callback(new Error('Unauthorized'))
-  }
-  oktaJwtVerifier.verifyAccessToken(bearerToken[1], process.env.OKTA_JWT_AUDIENCE as string)
-    .then((jwt: Jwt) => {
-      callback(null, generatePolicy('user', 'Allow', event.methodArn, jwt.claims.sub))
-    })
-    .catch(error => {
-      logger.error(JSON.stringify(error))
+  try {
+    logger.info(event.toString())
+    const bearerToken = event.authorizationToken.split(' ')
+    if (bearerToken.length > 2 || bearerToken[0] !== 'Bearer') {
+      logger.error(new Error('Invalid JWT'))
       callback(new Error('Unauthorized'))
-    })
+    }
+    oktaJwtVerifier.verifyAccessToken(bearerToken[1], process.env.OKTA_JWT_AUDIENCE as string)
+      .then((jwt: Jwt) => {
+        callback(null, generatePolicy('user', 'Allow', event.methodArn, jwt.claims.sub))
+      })
+      .catch(error => {
+        logger.error(JSON.stringify(error))
+        callback(new Error('Unauthorized'))
+      })
+  } catch (error) {
+    logger.error(JSON.stringify(error))
+  }
 }
 
 const generatePolicy = (principalId: string, effect: string, resource: string, email: string): AuthResponse => ({
