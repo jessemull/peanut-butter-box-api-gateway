@@ -8,7 +8,7 @@ const oktaJwtVerifier = new OktaJwtVerifier({
 
 const authorizer = (event: Event, context, callback: (error: any, response?: any) => void) => { // eslint-disable-line
   try {
-    logger.info(event.toString())
+    logger.info(JSON.stringify(event))
     const bearerToken = event.authorizationToken.split(' ')
     if (bearerToken.length > 2 || bearerToken[0] !== 'Bearer') {
       logger.error(new Error('Invalid JWT'))
@@ -16,7 +16,9 @@ const authorizer = (event: Event, context, callback: (error: any, response?: any
     }
     oktaJwtVerifier.verifyAccessToken(bearerToken[1], process.env.OKTA_JWT_AUDIENCE as string)
       .then((jwt: Jwt) => {
-        callback(null, generatePolicy('user', 'Allow', event.methodArn, jwt.claims.sub))
+        const policy = generatePolicy('user', 'Allow', event.methodArn, jwt.claims.sub)
+        logger.info(JSON.stringify(policy))
+        callback(null, policy)
       })
       .catch(error => {
         logger.error(JSON.stringify(error))
