@@ -106,7 +106,9 @@ functions:
     handler: src/index.handler
     events:
       - http: 
-          authorizer: authorizer
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
           cors: true
           method: post
           path: /users/change
@@ -114,7 +116,9 @@ functions:
     handler: src/index.handler
     events:
       - http: 
-          authorizer: authorizer
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
           cors: true
           method: delete
           path: /users
@@ -122,7 +126,9 @@ functions:
     handler: src/index.handler
     events:
       - http: 
-          authorizer: authorizer
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
           cors: true
           method: get
           path: /users
@@ -182,7 +188,9 @@ functions:
     handler: src/index.handler
     events:
       - http:
-          authorizer: adminauthorizer
+          authorizer:
+            name: adminauthorizer
+            resultTtlInSeconds: 0
           cors: true
           method: post
           path: /products
@@ -190,7 +198,9 @@ functions:
     handler: src/index.handler
     events:
       - http:
-          authorizer: adminauthorizer
+          authorizer:
+            name: adminauthorizer
+            resultTtlInSeconds: 0
           cors: true
           method: put
           path: /products/{productId}
@@ -202,7 +212,9 @@ functions:
     handler: src/index.handler
     events:
       - http:
-          authorizer: adminauthorizer
+          authorizer:
+            name: adminauthorizer
+            resultTtlInSeconds: 0
           cors: true
           method: delete
           path: /products/{productId}

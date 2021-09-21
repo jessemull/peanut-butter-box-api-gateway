@@ -30,7 +30,7 @@ describe('admin-authorizer', () => {
     })
     authorizer(event as any, {}, callback)
   })
-  it('should catch errors', (done) => {
+  it('should catch OKTA validator errors', (done) => {
     OktaJwtVerifier.prototype.verifyAccessToken = async () => Promise.reject(new Error())
     const event = {
       authorizationToken: 'Bearer token',
@@ -45,6 +45,17 @@ describe('admin-authorizer', () => {
   it('should catch malformed bearer token', (done) => {
     const event = {
       authorizationToken: 'InvalidBearer token',
+      methodArn: 'methodArn'
+    }
+    const callback = jest.fn().mockImplementationOnce((error) => {
+      expect(error).toEqual(new Error('Unauthorized'))
+      done()
+    })
+    authorizer(event as any, {}, callback)
+  })
+  it('should catch any other errors', (done) => {
+    const event = {
+      authorizationToken: {},
       methodArn: 'methodArn'
     }
     const callback = jest.fn().mockImplementationOnce((error) => {

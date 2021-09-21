@@ -26,6 +26,7 @@ const authorizer = (event: Event, context, callback: (error: any, response?: any
       })
   } catch (error) {
     logger.error(JSON.stringify(error))
+    callback(new Error('Unauthorized'))
   }
 }
 
