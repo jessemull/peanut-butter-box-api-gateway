@@ -3,15 +3,16 @@ import { Product } from '../types'
 
 const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE || 'products-table-dev'
 
-export const createProduct = async ({ description, name, price, productId, title }: Product): Promise<Product> => {
+export const createProduct = async ({ description, examples, name, price, productId, title }: Product): Promise<Product> => {
   const params = {
     TableName: PRODUCTS_TABLE,
     Key: {
       productId
     },
-    UpdateExpression: 'set description = :d, #nm = :n, price = :p, title = :t',
+    UpdateExpression: 'set description = :d, examples = :e, #nm = :n, price = :p, title = :t',
     ExpressionAttributeValues: {
       ':d': description,
+      ':e': examples,
       ':n': name,
       ':p': price,
       ':t': title
@@ -54,15 +55,16 @@ export const getProducts = async (): Promise<Array<Product> | null> => {
   return data.Items as Array<Product>
 }
 
-export const updateProduct = async ({ description, name, price, productId, title }: Product): Promise<Product> => {
+export const updateProduct = async ({ description, examples, name, price, productId, title }: Product): Promise<Product> => {
   const params = {
     TableName: PRODUCTS_TABLE,
     Key: {
       productId
     },
-    UpdateExpression: 'set description = :d, #nm = :n, price = :p, title = :t',
+    UpdateExpression: 'set description = :d, examples = :e, #nm = :n, price = :p, title = :t',
     ExpressionAttributeValues: {
       ':d': description,
+      ':e': examples,
       ':n': name,
       ':p': price,
       ':t': title

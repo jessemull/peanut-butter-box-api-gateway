@@ -20,12 +20,12 @@ export default (app: Router): void => {
 
   route.post('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const { description, name, price, productId, title } = req.body as Product
+      const { description, examples, name, price, productId, title } = req.body as Product
       const existingProduct = await ProductsService.getProduct(productId)
       if (existingProduct) {
         return res.status(409).json({ error: 'This product already exists!' })
       }
-      const product = await ProductsService.createProduct({ description, name, price, productId, title })
+      const product = await ProductsService.createProduct({ description, examples, name, price, productId, title })
       res.json(product)
     } catch (error) {
       logger.error(error)
@@ -35,13 +35,13 @@ export default (app: Router): void => {
 
   route.put('/:productId', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const { description, name, price, title } = req.body as Product
+      const { description, examples, name, price, title } = req.body as Product
       const { productId } = req.params
       const existingProduct = await ProductsService.getProduct(productId)
       if (!existingProduct) {
         return res.status(404).json({ error: 'Product does not exist!' })
       }
-      const product = await ProductsService.updateProduct({ description, name, price, productId, title })
+      const product = await ProductsService.updateProduct({ description, examples, name, price, productId, title })
       res.json(product)
     } catch (error) {
       logger.error(error)
