@@ -24,6 +24,7 @@ describe('/users', () => {
   it('GET returns all products', async () => {
     const products = [{
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -52,6 +53,7 @@ describe('/users', () => {
   it('POST creates a new product', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -71,6 +73,7 @@ describe('/users', () => {
   it('POST returns conflict if the product already exists', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -89,6 +92,7 @@ describe('/users', () => {
   it('POST catches errors and returns 500', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -109,6 +113,7 @@ describe('/users', () => {
   it('PUT updates a product', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -129,6 +134,7 @@ describe('/users', () => {
   it('PUT returns 404 if the product does not exist', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       title: 'title'
@@ -146,6 +152,7 @@ describe('/users', () => {
   it('PUT catches errors and returns 500', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       productId: 'productId',
       price: 100.12,
@@ -167,6 +174,7 @@ describe('/users', () => {
   it('DELETE deletes a product', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -185,6 +193,7 @@ describe('/users', () => {
   it('DELETE returns 404 if the product does not exist', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       title: 'title'
@@ -202,6 +211,7 @@ describe('/users', () => {
   it('DELETE catches errors and returns 500', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       productId: 'productId',
       price: 100.12,

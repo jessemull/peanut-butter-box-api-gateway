@@ -12,6 +12,7 @@ describe('products service', () => {
   it('should create a product', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -22,9 +23,10 @@ describe('products service', () => {
       Key: {
         productId: product.productId
       },
-      UpdateExpression: 'set description = :d, #nm = :n, price = :p, title = :t',
+      UpdateExpression: 'set description = :d, examples = :e, #nm = :n, price = :p, title = :t',
       ExpressionAttributeValues: {
         ':d': product.description,
+        ':e': product.examples,
         ':n': product.name,
         ':p': product.price,
         ':t': product.title
@@ -54,6 +56,7 @@ describe('products service', () => {
   it('should get a product', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -73,6 +76,7 @@ describe('products service', () => {
   it('should get products', async () => {
     const products = [{
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -89,6 +93,7 @@ describe('products service', () => {
   it('should update a product', async () => {
     const product = {
       description: 'description',
+      examples: 'examples',
       name: 'name',
       price: 100.12,
       productId: 'productId',
@@ -99,9 +104,10 @@ describe('products service', () => {
       Key: {
         productId: product.productId
       },
-      UpdateExpression: 'set description = :d, #nm = :n, price = :p, title = :t',
+      UpdateExpression: 'set description = :d, examples = :e, #nm = :n, price = :p, title = :t',
       ExpressionAttributeValues: {
         ':d': product.description,
+        ':e': product.examples,
         ':n': product.name,
         ':p': product.price,
         ':t': product.title
