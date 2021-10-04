@@ -10,6 +10,7 @@ custom:
     stages:
       - dev
       - prod
+  messagesTableName: 'messages-table-${opt:stage}'
   productsTableName: 'products-table-${opt:stage}'
   usersTableName: 'users-table-${opt:stage}'
   
@@ -51,6 +52,7 @@ provider:
     BASE_URL: ${self:custom.baseUrl.${opt:stage}}
     GOOGLE_API_KEY_SECRET_NAME: 'google-places-api-key'
     GOOGLE_API_URL: 'https://maps.googleapis.com'
+    MESSAGES_TABLE: ${self:custom.messagesTableName}
     OKTA_DOMAIN: 'https://dev-82492334.okta.com'
     OKTA_JWT_AUDIENCE: 'api://default'
     PRODUCTS_TABLE: ${self:custom.productsTableName}
@@ -222,6 +224,13 @@ functions:
             parameters:
               paths:
                 productid: true
+  postMessage:
+    handler: src/index.handler
+    events:
+      - http:
+          cors: true
+          method: post
+          path: /support
 
 plugins:
   - serverless-plugin-typescript
@@ -259,6 +268,21 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.productsTableName}
+    MessagesDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: email
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.messagesTableName}
     GatewayResponse:
       Type: 'AWS::ApiGateway::GatewayResponse'
       Properties:
