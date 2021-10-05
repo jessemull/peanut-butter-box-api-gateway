@@ -1,60 +1,32 @@
-import client from '../lib/ses-client'
+import get from 'lodash.get'
 import dynamo from '../lib/dynamo'
-import { Message } from '../types'
+import { Message, Messages } from '../types'
 
 const MESSAGES_TABLE = process.env.MESSAGES_TABLE || 'messages-table-dev'
 
-export const createMessage = async ({ date, email, firstName, lastName, message }: Message): Promise<Message> => {
+export const getMessages = async (email: string): Promise<Array<Message>> => {
+  const params = {
+    TableName: MESSAGES_TABLE,
+    Key: {
+      email
+    }
+  }
+  const data = await dynamo.get(params).promise()
+  return get(data, 'Item.messages', []) as Array<Message>
+}
+
+export const updateMessages = async ({ email, messages }: Messages): Promise<Messages> => {
   const params = {
     TableName: MESSAGES_TABLE,
     Key: {
       email
     },
-    UpdateExpression: 'set date = :d, email = :e, firstName = :f, lastName = :l, message = :m',
+    UpdateExpression: 'set messages = :m',
     ExpressionAttributeValues: {
-      ':d': date,
-      ':e': email,
-      ':f': firstName,
-      ':l': lastName,
-      ':m': message
+      ':m': messages
     },
     ReturnValues: 'ALL_NEW'
   }
   const data = await dynamo.update(params).promise()
-  return data.Attributes as Message
-}
-
-export const sendMessage = async ({ email, firstName, lastName, message }: Message): Promise<void> => {
-  const sesParams = {
-    Destination: {
-      ToAddresses: [
-        'contact@peanutbutterbox.org'
-      ]
-    },
-    Message: {
-      Body: {
-        Html: {
-          Charset: 'UTF-8',
-          Data: `First Name: ${firstName}\n` +
-                `LastName: ${lastName}\n` +
-                `E-mail: ${email}\n\n` +
-                message
-        },
-        Text: {
-          Charset: 'UTF-8',
-          Data: `First Name: ${firstName}\n` +
-                `LastName: ${lastName}\n` +
-                `E-mail: ${email}\n\n` +
-                message
-        }
-      },
-      Subject: {
-        Charset: 'UTF-8',
-        Data: `Support for ${firstName} ${lastName}`
-      }
-    },
-    Source: 'support@peanutbutterbox.org'
-  }
-
-  await client.sendEmail(sesParams).promise()
+  return data.Attributes as Messages
 }

@@ -1,4 +1,5 @@
 import client from '../lib/ses-client'
+import { MessageInput } from '../types'
 
 const baseUrl = process.env.BASE_URL as string
 
@@ -56,5 +57,40 @@ export const sendActivation = async (token: string): Promise<void> => {
     },
     Source: 'support@peanutbutterbox.org'
   }
+  await client.sendEmail(sesParams).promise()
+}
+
+export const sendContactMessage = async ({ email, firstName, lastName, message }: MessageInput): Promise<void> => {
+  const sesParams = {
+    Destination: {
+      ToAddresses: [
+        'contact@peanutbutterbox.org'
+      ]
+    },
+    Message: {
+      Body: {
+        Html: {
+          Charset: 'UTF-8',
+          Data: `First Name: ${firstName}\n` +
+                `LastName: ${lastName}\n` +
+                `E-mail: ${email}\n\n` +
+                message
+        },
+        Text: {
+          Charset: 'UTF-8',
+          Data: `First Name: ${firstName}\n` +
+                `LastName: ${lastName}\n` +
+                `E-mail: ${email}\n\n` +
+                message
+        }
+      },
+      Subject: {
+        Charset: 'UTF-8',
+        Data: `Support for ${firstName} ${lastName}`
+      }
+    },
+    Source: 'support@peanutbutterbox.org'
+  }
+
   await client.sendEmail(sesParams).promise()
 }

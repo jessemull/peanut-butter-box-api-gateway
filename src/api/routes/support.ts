@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
 import logger from '../../lib/logger'
-import { SupportService } from '../../services'
-import { Message } from '../../types'
+import { EmailService, SupportService } from '../../services'
+import { MessageInput } from '../../types'
 
 const route: Router = Router()
 
@@ -10,9 +10,10 @@ export default (app: Router): void => {
 
   route.post('/', async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const { date, email, firstName, lastName, message } = req.body as Message
-      await SupportService.createMessage({ date, email, firstName, lastName, message })
-      await SupportService.sendMessage({ date, email, firstName, lastName, message })
+      const { date, email, firstName, lastName, message } = req.body as MessageInput
+      const messages = await SupportService.getMessages(email)
+      await SupportService.updateMessages({ email, messages: [...messages, { date, firstName, lastName, message }] })
+      await EmailService.sendContactMessage({ date, email, firstName, lastName, message })
       res.status(200).send()
     } catch (error) {
       logger.error(error)
