@@ -34,6 +34,7 @@ provider:
           Resource:
             - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn"] }
             - { "Fn::GetAtt": ["ProductsDynamoDBTable", "Arn"] }
+            - { "Fn::GetAtt": ["MessagesDynamoDBTable", "Arn"] }
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
