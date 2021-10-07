@@ -1,6 +1,7 @@
 import { mocked } from 'ts-jest/utils'
 import client from '../lib/ses-client'
-import { sendActivation, sendPasswordReset } from './email'
+import { MessageInput } from '../types'
+import { sendActivation, sendContactMessage, sendPasswordReset } from './email'
 
 jest.mock('../lib/ses-client')
 
@@ -65,6 +66,46 @@ describe('email service', () => {
       Source: 'support@peanutbutterbox.org'
     }
     await sendPasswordReset('token')
+    expect(sendEmail).toHaveBeenCalledWith(sesParams)
+  })
+  it('should send contact message', async () => {
+    const message = {
+      email: 'first.last@domain.com',
+      firstName: 'firstName',
+      lastName: 'lastName',
+      message: 'message'
+    }
+    const sesParams = {
+      Destination: {
+        ToAddresses: [
+          'contact@peanutbutterbox.org'
+        ]
+      },
+      Message: {
+        Body: {
+          Html: {
+            Charset: 'UTF-8',
+            Data: 'First Name: firstName\n' +
+                  'LastName: lastName\n' +
+                  'E-mail: first.last@domain.com\n\n' +
+                  'message'
+          },
+          Text: {
+            Charset: 'UTF-8',
+            Data: 'First Name: firstName\n' +
+                  'LastName: lastName\n' +
+                  'E-mail: first.last@domain.com\n\n' +
+                  'message'
+          }
+        },
+        Subject: {
+          Charset: 'UTF-8',
+          Data: 'Support for firstName lastName'
+        }
+      },
+      Source: 'support@peanutbutterbox.org'
+    }
+    await sendContactMessage(message as MessageInput)
     expect(sendEmail).toHaveBeenCalledWith(sesParams)
   })
 })
