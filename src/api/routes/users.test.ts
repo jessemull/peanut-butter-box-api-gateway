@@ -109,7 +109,7 @@ describe('/users', () => {
     expect(createUser).toHaveBeenCalledWith(user)
     expect(doesUserExist).toHaveBeenCalledWith(user.email)
     expect(getActivationToken).toHaveBeenCalledWith('id')
-    expect(sendActivation).toHaveBeenLastCalledWith('token')
+    expect(sendActivation).toHaveBeenLastCalledWith({ activationToken: 'token', firstName: 'firstName' })
     expect(createDynamoUser).toHaveBeenCalledWith(userWithId)
   })
   it('POST returns 409 if user already exists', async () => {

@@ -75,7 +75,7 @@ export default (app: Router): void => {
   route.post('/request/reset', async (req: Request, res: Response): Promise<void | Response> => {
     try {
       const { email } = req.body as User
-      const user = await OktaUserService.doesUserExist(email) as unknown as UserResponse
+      const user = await OktaUserService.doesUserExist(email) as UserResponse
       if (!user) {
         return res.status(404).json({ error: 'A user with this e-mail does not exist' })
       }
@@ -97,7 +97,7 @@ export default (app: Router): void => {
       }
       const user = await OktaUserService.createUser({ email, firstName, lastName })
       const activationToken = await OktaUserService.getActivationToken(user.id)
-      await EmailService.sendActivation(activationToken)
+      await EmailService.sendActivation({ activationToken, firstName })
       await DynamoDBUserService.createUser({ id: user.id, email, firstName, lastName })
       res.json(user)
     } catch (error) {

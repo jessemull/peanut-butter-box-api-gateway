@@ -1,0 +1,7 @@
+{
+  "Template": {
+    "TemplateName": "Activation",
+    "SubjectPart": "Peanut Butter Box - Account Activation",
+    "HtmlPart": "<div style=\"align-items:center;display:flex;flex-direction:column;height:100%;margin-top:32px;width:100%;\"><div style=\"width:600px;\"><div style=\"align-items:center;background-color:#293E6A;border-radius:8px 8px 0px 0px;display:flex;justify-content:center;padding:24px;\"><h1 style=\"color:white;font-family: Arial;font-weight:400;margin:0;padding:0;text-transform:uppercase;\">Peanut Butter Box</h1></div><div style=\"border-radius:0px 0px 8px 8px;border-bottom:1px solid #CCCCCC;border-left:1px solid #CCCCCC;border-right:1px solid #CCCCCC;padding:32px;\"><h3 style=\"font-weight:600;margin:0;padding:0;text-transform:uppercase;\">Welcome to Peanut Butter Box!</h3><p>Hi {{firstName}},</p><p>Congratulations on starting your culinary journey with Peanut Butter Box.</p><p>Click the button below to activate your account:</p><a style=\"border:none;outline:none;background-color:#293E6A;margin-top:8px;border-radius:5px;color:white;cursor:pointer;display:inline-block;font-family:Arial;font-size:1rem;font-weight:550;padding:12px;text-decoration:none;text-transform:uppercase;\" href={{href}}>\n        Activate Account\n      </a></div></div></div>"
+  }
+}

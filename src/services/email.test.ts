@@ -14,32 +14,23 @@ sendTemplatedEmail.mockImplementation(() => ({ promise: () => Promise.resolve() 
 
 describe('email service', () => {
   it('should send activation', async () => {
+    const input = {
+      activationToken: 'token',
+      firstName: 'firstName'
+    }
     const sesParams = {
+      ConfigurationSetName: 'peanutbutterbox',
       Destination: {
         ToAddresses: [
           'jessemull@gmail.com'
         ]
       },
-      Message: {
-        Body: {
-          Html: {
-            Charset: 'UTF-8',
-            Data: `${baseUrl}/activate?token=token`
-          },
-          Text: {
-            Charset: 'UTF-8',
-            Data: `${baseUrl}/activate?token=token`
-          }
-        },
-        Subject: {
-          Charset: 'UTF-8',
-          Data: 'Welcome to Peanut Butter Box! Activate your account now!'
-        }
-      },
+      Template: 'Activation',
+      TemplateData: `{ "firstName": "${input.firstName}", "href": "${`${baseUrl}/activate?token=${input.activationToken}`}" }`,
       Source: 'support@peanutbutterbox.org'
     }
-    await sendActivation('token')
-    expect(sendEmail).toHaveBeenCalledWith(sesParams)
+    await sendActivation(input)
+    expect(sendTemplatedEmail).toHaveBeenCalledWith(sesParams)
   })
   it('should send password reset', async () => {
     const input = {
