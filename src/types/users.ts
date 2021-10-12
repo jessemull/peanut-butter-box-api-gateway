@@ -13,6 +13,15 @@ export interface User {
   zipCode?: string;
 }
 
+export interface UserResponse {
+  id: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+    login: string;
+  }
+}
+
 export interface ChangePasswordInput {
   id: string;
   newPassword: string;

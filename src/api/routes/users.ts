@@ -1,7 +1,7 @@
 import get from 'lodash.get'
 import { Router, Request, Response } from 'express'
 import logger from '../../lib/logger'
-import { Activation, ChangePasswordInput, Reset, User } from '../../types'
+import { Activation, ChangePasswordInput, Reset, User, UserResponse } from '../../types'
 import { DynamoDBUserService, EmailService, OktaUserService } from '../../services'
 
 const route: Router = Router()
@@ -75,12 +75,12 @@ export default (app: Router): void => {
   route.post('/request/reset', async (req: Request, res: Response): Promise<void | Response> => {
     try {
       const { email } = req.body as User
-      const user = await OktaUserService.doesUserExist(email)
+      const user = await OktaUserService.doesUserExist(email) as unknown as UserResponse
       if (!user) {
         return res.status(404).json({ error: 'A user with this e-mail does not exist' })
       }
       const token = await OktaUserService.getResetToken(user.id)
-      await EmailService.sendPasswordReset(token)
+      await EmailService.sendPasswordReset({ firstName: user.profile.firstName, login: user.profile.login, token })
       res.status(200).send()
     } catch (error) {
       logger.error(error)

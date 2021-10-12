@@ -1,35 +1,24 @@
 import client from '../lib/ses-client'
-import { MessageInput } from '../types'
+import { MessageInput, SendPasswordResetInput } from '../types'
 
 const baseUrl = process.env.BASE_URL as string
 
-export const sendPasswordReset = async (token: string): Promise<void> => {
+export const sendPasswordReset = async ({ firstName, login, token }: SendPasswordResetInput): Promise<void> => {
+  const href = `${baseUrl}/reset?token=${token}`
+  const support = `${baseUrl}/contact`
   const sesParams = {
+    ConfigurationSetName: 'peanutbutterbox',
     Destination: {
       ToAddresses: [
         'jessemull@gmail.com'
       ]
     },
-    Message: {
-      Body: {
-        Html: {
-          Charset: 'UTF-8',
-          Data: `${baseUrl}/reset?token=${token}`
-        },
-        Text: {
-          Charset: 'UTF-8',
-          Data: `${baseUrl}/reset?token=${token}`
-        }
-      },
-      Subject: {
-        Charset: 'UTF-8',
-        Data: 'Peanut Butter Box password recovery. Reset your password now!'
-      }
-    },
+    Template: 'RequestPasswordReset',
+    TemplateData: `{ "firstName": "${firstName}", "login": "${login}", "href": "${href}", "support": "${support}" }`,
     Source: 'support@peanutbutterbox.org'
   }
 
-  await client.sendEmail(sesParams).promise()
+  await client.sendTemplatedEmail(sesParams).promise()
 }
 
 export const sendActivation = async (token: string): Promise<void> => {

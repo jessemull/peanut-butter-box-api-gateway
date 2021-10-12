@@ -54,6 +54,10 @@
     "deploy": "sls deploy",
     "lint": "eslint . --ext .ts",
     "start": "nodemon --exec serverless offline --stage dev --httpPort 8080 --printOutput",
+    "template:create": "node ./scripts/create-template.js",
+    "template:generate": "node ./scripts/generate-template.js",
+    "template:get": "node ./scripts/get-template.js",
+    "template:update": "node ./scripts/update-template.js",
     "test": "jest"
   },
   "author": "jessemull@gmail.com",
