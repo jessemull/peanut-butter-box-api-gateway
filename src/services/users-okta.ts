@@ -1,6 +1,6 @@
 import { AppUser, User } from '@okta/okta-sdk-nodejs'
 import getOktaClient from '../lib/okta'
-import { AuthnResponse, ChangePasswordInput, OktaUserInput, PasswordResetResponse } from '../types'
+import { AuthnResponse, ChangePasswordInput, OktaUserInput, PasswordResetResponse, UserResponse } from '../types'
 
 const oktaURL = process.env.OKTA_DOMAIN as string
 
@@ -54,7 +54,7 @@ export const deleteUser = async (email: string): Promise<User> => {
   return user
 }
 
-export const doesUserExist = async (email: string): Promise<AppUser | null> => {
+export const doesUserExist = async (email: string): Promise<UserResponse | null> => {
   const client = await getOktaClient()
   const validateURL = `${oktaURL}/api/v1/users?limit=200&filter=profile.email+eq+%22${encodeURIComponent(email)}%22`
   const validateRequest = {
@@ -65,7 +65,7 @@ export const doesUserExist = async (email: string): Promise<AppUser | null> => {
     }
   }
   const data = await client.http.http(validateURL, validateRequest)
-  const users = await data.json() as [AppUser] | []
+  const users = await data.json() as [UserResponse] | []
   return users[0] || null
 }
 

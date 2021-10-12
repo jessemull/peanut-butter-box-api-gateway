@@ -5,6 +5,7 @@ import { mocked } from 'ts-jest/utils'
 import routes from '..'
 import { DynamoDBUserService, EmailService, OktaUserService } from '../../services'
 import { AppUser, User } from '@okta/okta-sdk-nodejs'
+import { UserResponse } from '../../types'
 
 jest.mock('../../services')
 
@@ -112,7 +113,7 @@ describe('/users', () => {
     expect(createDynamoUser).toHaveBeenCalledWith(userWithId)
   })
   it('POST returns 409 if user already exists', async () => {
-    doesUserExist.mockResolvedValueOnce({} as AppUser)
+    doesUserExist.mockResolvedValueOnce({} as UserResponse)
     const user = {
       email: 'email',
       firstName: 'firstName',
@@ -227,12 +228,16 @@ describe('/users', () => {
   })
   it('POST /request/reset requests a user password reset via e-mail', async () => {
     const user = {
-      id: 'id'
+      id: 'id',
+      profile: {
+        firstName: 'firstName',
+        login: 'login'
+      }
     }
     const resetRequest = {
       email: sub
     }
-    doesUserExist.mockResolvedValueOnce(user as AppUser)
+    doesUserExist.mockResolvedValueOnce(user as UserResponse)
     getResetToken.mockResolvedValueOnce('resetToken')
     await supertest(app)
       .post('/users/request/reset')
@@ -242,7 +247,7 @@ describe('/users', () => {
       .expect(200)
     expect(doesUserExist).toHaveBeenCalledWith(sub)
     expect(getResetToken).toHaveBeenCalledWith(user.id)
-    expect(sendPasswordReset).toHaveBeenLastCalledWith('resetToken')
+    expect(sendPasswordReset).toHaveBeenLastCalledWith({ firstName: 'firstName', login: 'login', token: 'resetToken' })
   })
   it('POST /request/reset returns 404 if the user does not exist', async () => {
     const resetRequest = {

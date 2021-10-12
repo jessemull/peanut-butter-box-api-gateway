@@ -7,12 +7,13 @@ jest.mock('../lib/ses-client')
 
 const baseUrl = process.env.BASE_URL as string
 
-const { sendEmail } = mocked(client)
+const { sendEmail, sendTemplatedEmail } = mocked(client)
 
 sendEmail.mockImplementation(() => ({ promise: () => Promise.resolve() }) as any)
+sendTemplatedEmail.mockImplementation(() => ({ promise: () => Promise.resolve() }) as any)
 
 describe('email service', () => {
-  it('should send password reset', async () => {
+  it('should send activation', async () => {
     const sesParams = {
       Destination: {
         ToAddresses: [
@@ -40,33 +41,25 @@ describe('email service', () => {
     await sendActivation('token')
     expect(sendEmail).toHaveBeenCalledWith(sesParams)
   })
-  it('should send activation', async () => {
+  it('should send password reset', async () => {
+    const input = {
+      firstName: 'firstName',
+      login: 'login',
+      token: 'token'
+    }
     const sesParams = {
+      ConfigurationSetName: 'peanutbutterbox',
       Destination: {
         ToAddresses: [
           'jessemull@gmail.com'
         ]
       },
-      Message: {
-        Body: {
-          Html: {
-            Charset: 'UTF-8',
-            Data: `${baseUrl}/activate?token=token`
-          },
-          Text: {
-            Charset: 'UTF-8',
-            Data: `${baseUrl}/activate?token=token`
-          }
-        },
-        Subject: {
-          Charset: 'UTF-8',
-          Data: 'Welcome to Peanut Butter Box! Activate your account now!'
-        }
-      },
+      Template: 'RequestPasswordReset',
+      TemplateData: `{ "firstName": "${input.firstName}", "login": "${input.login}", "href": "${`${baseUrl}/reset?token=${input.token}`}", "support": "${`${baseUrl}/contact`}" }`,
       Source: 'support@peanutbutterbox.org'
     }
-    await sendPasswordReset('token')
-    expect(sendEmail).toHaveBeenCalledWith(sesParams)
+    await sendPasswordReset(input)
+    expect(sendTemplatedEmail).toHaveBeenCalledWith(sesParams)
   })
   it('should send contact message', async () => {
     const message = {
