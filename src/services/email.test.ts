@@ -7,9 +7,8 @@ jest.mock('../lib/ses-client')
 
 const baseUrl = process.env.BASE_URL as string
 
-const { sendEmail, sendTemplatedEmail } = mocked(client)
+const { sendTemplatedEmail } = mocked(client)
 
-sendEmail.mockImplementation(() => ({ promise: () => Promise.resolve() }) as any)
 sendTemplatedEmail.mockImplementation(() => ({ promise: () => Promise.resolve() }) as any)
 
 describe('email service', () => {
@@ -53,43 +52,24 @@ describe('email service', () => {
     expect(sendTemplatedEmail).toHaveBeenCalledWith(sesParams)
   })
   it('should send contact message', async () => {
-    const message = {
+    const input = {
       email: 'first.last@domain.com',
       firstName: 'firstName',
       lastName: 'lastName',
       message: 'message'
     }
     const sesParams = {
+      ConfigurationSetName: 'peanutbutterbox',
       Destination: {
         ToAddresses: [
           'contact@peanutbutterbox.org'
         ]
       },
-      Message: {
-        Body: {
-          Html: {
-            Charset: 'UTF-8',
-            Data: 'First Name: firstName\n' +
-                  'LastName: lastName\n' +
-                  'E-mail: first.last@domain.com\n\n' +
-                  'message'
-          },
-          Text: {
-            Charset: 'UTF-8',
-            Data: 'First Name: firstName\n' +
-                  'LastName: lastName\n' +
-                  'E-mail: first.last@domain.com\n\n' +
-                  'message'
-          }
-        },
-        Subject: {
-          Charset: 'UTF-8',
-          Data: 'Support for firstName lastName'
-        }
-      },
+      Template: 'Support',
+      TemplateData: `{ "firstName": "${input.firstName}", "lastName": "${input.lastName}", "email": "${input.email}", "message": "${input.message}" }`,
       Source: 'support@peanutbutterbox.org'
     }
-    await sendContactMessage(message as MessageInput)
-    expect(sendEmail).toHaveBeenCalledWith(sesParams)
+    await sendContactMessage(input as MessageInput)
+    expect(sendTemplatedEmail).toHaveBeenCalledWith(sesParams)
   })
 })

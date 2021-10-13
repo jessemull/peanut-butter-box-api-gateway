@@ -38,35 +38,16 @@ export const sendActivation = async ({ activationToken, firstName }: SendActivat
 
 export const sendContactMessage = async ({ email, firstName, lastName, message }: MessageInput): Promise<void> => {
   const sesParams = {
+    ConfigurationSetName: 'peanutbutterbox',
     Destination: {
       ToAddresses: [
         'contact@peanutbutterbox.org'
       ]
     },
-    Message: {
-      Body: {
-        Html: {
-          Charset: 'UTF-8',
-          Data: `First Name: ${firstName}\n` +
-                `LastName: ${lastName}\n` +
-                `E-mail: ${email}\n\n` +
-                message
-        },
-        Text: {
-          Charset: 'UTF-8',
-          Data: `First Name: ${firstName}\n` +
-                `LastName: ${lastName}\n` +
-                `E-mail: ${email}\n\n` +
-                message
-        }
-      },
-      Subject: {
-        Charset: 'UTF-8',
-        Data: `Support for ${firstName} ${lastName}`
-      }
-    },
+    Template: 'Support',
+    TemplateData: `{ "firstName": "${firstName}", "lastName": "${lastName}", "email": "${email}", "message": "${message}" }`,
     Source: 'support@peanutbutterbox.org'
   }
 
-  await client.sendEmail(sesParams).promise()
+  await client.sendTemplatedEmail(sesParams).promise()
 }
