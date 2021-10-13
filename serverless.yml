@@ -48,6 +48,7 @@ provider:
             - ses:SendTemplatedEmail
           Resource:
             - arn:aws:ses:us-east-1:771265364914:identity/*
+            - arn:aws:ses:us-east-1:771265364914:configuration-set/*
   environment:
     API_KEY_SECRET_NAME: 'okta-api-key'
     AUDIENCE: api://default
